@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Slider } from "@/components/ui/slider"
-import { Mail, Phone } from "lucide-react" // Import icons for footer
-import { sendBookingEmail } from "@/actions/send-email" // Import the server action
+import { Mail, Phone, ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react"
+import { sendBookingEmail } from "@/actions/send-email"
+
+const ACCENT_COLOR = "#F7931A"
 
 const heroImages = [
   "/images/hero-waterfall-guide.jpg",
@@ -21,6 +23,19 @@ const heroImages = [
   "/images/hero-waterfall-gorge.jpg",
   "/images/hero-rock-pools.jpg",
   "/images/hero-cattle-beach.jpg",
+]
+
+const november2025Images = [
+  { src: "/images/nov-2025/beach-walk.webp", alt: "Hikers walking on misty Wild Coast beach" },
+  { src: "/images/nov-2025/kayaking.webp", alt: "Group kayaking on emerald waters near cliffs" },
+  { src: "/images/nov-2025/river-landscape.webp", alt: "Scenic river view with lush green hills" },
+  { src: "/images/nov-2025/angel-waterfall.webp", alt: "Angel Waterfall cascading into natural pool" },
+  { src: "/images/nov-2025/red-dunes.webp", alt: "Hikers crossing striking red sand dunes" },
+  { src: "/images/nov-2025/cathedral-rock.webp", alt: "Cathedral Rock formation in the ocean" },
+  { src: "/images/nov-2025/tall-waterfall.webp", alt: "Tall waterfall cascading down dark rock face" },
+  { src: "/images/nov-2025/phiwani-homestay.webp", alt: "Welcome to Phiwani's Homestay traditional building" },
+  { src: "/images/nov-2025/group-beach.webp", alt: "Hiking group taking a break on sandy beach" },
+  { src: "/images/nov-2025/orange-rondavels.webp", alt: "Traditional orange and green rondavels" },
 ]
 
 const timelineData = [
@@ -101,59 +116,60 @@ const timelineData = [
   },
   {
     year: "2023",
-    info: "February: ACC issues red alert over new death threats to Nonhle Mbuthuma and Thwesha Silangwe. National solidarity from NGOs and Abahlali baseMjondolo.",
-    type: "violence",
-  },
-  {
-    year: "2024",
-    info: "May: Goldman Environmental Prize (Africa) awarded to Nonhle Mbuthuma & Sinegugu Zukulu. November: WWF SA Living Planet Award presented to ACC & Sustaining the Wild Coast. Media and documentaries highlight ancestral stewardship and eco‑tourism as the future.",
-    type: "recognition",
-  },
-  {
-    year: "2025",
-    info: "Ongoing monitoring of land, coast, and ocean against new mining and exploration proposals. ACC and local villages remain globally recognized as leaders in community‑driven eco‑activism.",
-    type: "recognition",
+    info: "Continued advocacy for sustainable development and community-led eco-tourism initiatives along the Wild Coast.",
+    type: "formation",
   },
 ]
 
 export default function WildCoastToursClient() {
-  const [currentSlide, setCurrentSlide] = useState(0)
+  const [currentHeroImage, setCurrentHeroImage] = useState(0)
+  const [currentTimelineIndex, setCurrentTimelineIndex] = useState(0)
+  const [selectedTimelineItem, setSelectedTimelineItem] = useState<(typeof timelineData)[0] | null>(null)
+  const profileImageRef = useRef<HTMLDivElement>(null)
+  const [isProfileHovered, setIsProfileHovered] = useState(false)
   const [isBookingOpen, setIsBookingOpen] = useState(false)
-  const [selectedTimelineItem, setSelectedTimelineItem] = useState<{ year: string; info: string } | null>(null)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    hikeMonth: "",
+    people: 1,
     message: "",
-    selectedHike: "",
-    numberOfPeople: [2], // Using array format for Slider component
   })
-  const [submissionMessage, setSubmissionMessage] = useState<string | null>(null) // New state for submission message
-  const [currentTimelineEvent, setCurrentTimelineEvent] = useState(timelineData[0])
-  const [isProfileHovered, setIsProfileHovered] = useState(false) // New state for profile image hover
+  const [submissionMessage, setSubmissionMessage] = useState<string | null>(null)
 
-  // State for scroll-triggered profile image zoom
-  const profileImageRef = useRef<HTMLDivElement>(null)
-  const [scrollZoomProgress, setScrollZoomProgress] = useState(0) // 0 to 1 for zoom progress
+  const [nov2025Index, setNov2025Index] = useState(0)
+  const [zoomedImage, setZoomedImage] = useState<string | null>(null)
+  const [nov2025TouchStart, setNov2025TouchStart] = useState<number | null>(null)
 
-  // Add new state for drag functionality
+  // Timeline drag state
   const [isDragging, setIsDragging] = useState(false)
   const [dragStartX, setDragStartX] = useState(0)
-  const [dragCurrentX, setDragCurrentX] = useState(0)
+
+  // Interactive profile image states
+  const [borderScale, setBorderScale] = useState(1)
+  const [shadowIntensity, setShadowIntensity] = useState(20)
+  const [shadowOpacity, setShadowOpacity] = useState(0.5)
+  const [imageScale, setImageScale] = useState(1)
+  const [imageRotate, setImageRotate] = useState(0)
+  const [imageContrast, setImageContrast] = useState(1)
+  const [overlayOpacity, setOverlayOpacity] = useState(0)
+  const [dynamicBorderColor, setDynamicBorderColor] = useState("#1B5F8C")
+
+  const currentTimelineEvent = timelineData[currentTimelineIndex]
 
   // Hero slideshow
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length)
+      setCurrentHeroImage((prev) => (prev + 1) % heroImages.length)
     }, 5000)
     return () => clearInterval(interval)
   }, [])
 
-  // Intersection Observer for fade-in animations
+  // Fade-in animations on scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          // Handle fade-in for all elements with .fade-in class
           if (entry.isIntersecting) {
             entry.target.classList.add("animate-fade-in")
           }
@@ -162,220 +178,198 @@ export default function WildCoastToursClient() {
       { threshold: 0.1 },
     )
 
-    const elements = document.querySelectorAll(".fade-in")
-    elements.forEach((el) => observer.observe(el))
+    const fadeElements = document.querySelectorAll(".fade-in")
+    fadeElements.forEach((el) => observer.observe(el))
 
     return () => observer.disconnect()
   }, [])
 
-  // Scroll handler for profile image zoom
+  // Interactive profile image animation
   useEffect(() => {
-    if (!profileImageRef.current) return
-
-    const handleScroll = () => {
-      if (profileImageRef.current) {
-        const rect = profileImageRef.current.getBoundingClientRect()
-        const viewportHeight = window.innerHeight
-
-        // Define the scroll range where the zoom happens
-        // Zoom starts when the bottom of the element is at 85% of viewport height (starts later)
-        // Zoom ends when the top of the element is at 20% of viewport height
-        const startScroll = viewportHeight * 0.85
-        const endScroll = viewportHeight * 0.2
-
-        // Current position of the element's top relative to the viewport
-        const elementTop = rect.top
-
-        // Calculate progress (0 to 1)
-        let progress = 0
-        if (elementTop < startScroll && elementTop > endScroll) {
-          progress = 1 - (elementTop - endScroll) / (startScroll - endScroll)
-        } else if (elementTop <= endScroll) {
-          progress = 1 // Fully zoomed in
-        } else {
-          progress = 0 // Not in zoom range
-        }
-        setScrollZoomProgress(progress)
-      }
-    }
-
-    window.addEventListener("scroll", handleScroll)
-    handleScroll() // Initial check
-
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  const handleBookingSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmissionMessage(null) // Clear previous message
-
-    // Convert the form data to include the number of people as a number
-    const submissionData = {
-      ...formData,
-      numberOfPeople: formData.numberOfPeople[0], // Extract the number from the array
-    }
-
-    const result = await sendBookingEmail(submissionData)
-
-    if (result.success) {
-      setSubmissionMessage("Thanks for your interest in joining us, we'll get back to you soon.")
-      setFormData({ name: "", email: "", message: "", selectedHike: "", numberOfPeople: [2] }) // Clear form
-      // Optionally close dialog after a short delay
-      setTimeout(() => setIsBookingOpen(false), 3000)
+    if (isProfileHovered) {
+      const hoverInterval = setInterval(() => {
+        setBorderScale((prev) => 1 + Math.sin(Date.now() / 300) * 0.02)
+        setShadowIntensity((prev) => 30 + Math.sin(Date.now() / 200) * 10)
+        setShadowOpacity((prev) => 0.6 + Math.sin(Date.now() / 400) * 0.2)
+        setImageScale((prev) => 1.15 + Math.sin(Date.now() / 500) * 0.03)
+        setImageRotate((prev) => Math.sin(Date.now() / 800) * 2)
+        setImageContrast((prev) => 1.1 + Math.sin(Date.now() / 600) * 0.05)
+        setOverlayOpacity((prev) => 0.3 + Math.sin(Date.now() / 350) * 0.15)
+        setDynamicBorderColor(
+          `hsl(${200 + Math.sin(Date.now() / 1000) * 10}, 70%, ${40 + Math.sin(Date.now() / 700) * 5}%)`,
+        )
+      }, 50)
+      return () => clearInterval(hoverInterval)
     } else {
-      setSubmissionMessage("There was an error submitting your request. Please try again.")
+      setBorderScale(1)
+      setShadowIntensity(20)
+      setShadowOpacity(0.5)
+      setImageScale(1)
+      setImageRotate(0)
+      setImageContrast(1)
+      setOverlayOpacity(0)
+      setDynamicBorderColor("#1B5F8C")
     }
+  }, [isProfileHovered])
+
+  const selectTimelineEvent = (index: number) => {
+    setCurrentTimelineIndex(index)
   }
 
-  const selectTimelineEvent = (eventIndex: number) => {
-    setCurrentTimelineEvent(timelineData[eventIndex])
-  }
-
-  // Add drag handlers
-  const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
+  // Timeline drag handlers
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     setIsDragging(true)
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX
     setDragStartX(clientX)
-    setDragCurrentX(clientX)
   }
 
-  const handleDragMove = (e: React.TouchEvent | React.MouseEvent) => {
+  const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDragging) return
-
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX
-    setDragCurrentX(clientX)
-
-    const dragDistance = clientX - dragStartX
-    const threshold = 50 // pixels to drag before changing event
-
-    if (Math.abs(dragDistance) > threshold) {
-      const currentIndex = timelineData.findIndex((item) => item.year === currentTimelineEvent.year)
-      let newIndex = currentIndex
-
-      if (dragDistance > 0 && currentIndex > 0) {
-        newIndex = currentIndex - 1
-      } else if (dragDistance < 0 && currentIndex < timelineData.length - 1) {
-        newIndex = currentIndex + 1
+    const diff = dragStartX - clientX
+    if (Math.abs(diff) > 50) {
+      if (diff > 0 && currentTimelineIndex < timelineData.length - 1) {
+        setCurrentTimelineIndex((prev) => prev + 1)
+      } else if (diff < 0 && currentTimelineIndex > 0) {
+        setCurrentTimelineIndex((prev) => prev - 1)
       }
-
-      if (newIndex !== currentIndex) {
-        selectTimelineEvent(newIndex)
-        setDragStartX(clientX) // Reset drag start after successful change
-      }
+      setDragStartX(clientX)
     }
   }
 
   const handleDragEnd = () => {
     setIsDragging(false)
-    setDragStartX(0)
-    setDragCurrentX(0)
   }
 
-  // Dynamic styles for profile image zoom
-  const imageScale = 1 + scrollZoomProgress * 0.3 // Slower zoom (from 0.5 to 0.3)
-  const overlayOpacity = scrollZoomProgress // Opacity from 0 to 1
-  const borderScale = 1 + scrollZoomProgress * 0.15 // Slower border scale (from 0.25 to 0.15)
-  const shadowIntensity = scrollZoomProgress * 15 // Slower shadow blur (from 20 to 15)
-  const shadowOpacity = scrollZoomProgress * 0.2 // Slower shadow opacity (from 0.3 to 0.2)
-  const imageRotate = scrollZoomProgress * 5 // More fisheye rotation (from 2 to 5)
-  const imageContrast = 1 + scrollZoomProgress * 0.2 // Added contrast for lens effect
+  const nextNov2025 = () => {
+    setNov2025Index((prev) => (prev + 1) % november2025Images.length)
+  }
 
-  // Interpolate border color from #F9F6EE to Mpondo blue (#1B5F8C)
-  const initialBorderColorR = 249
-  const initialBorderColorG = 246
-  const initialBorderColorB = 238
-  const finalBorderColorR = 27 // R for #1B5F8C
-  const finalBorderColorG = 95 // G for #1B5F8C
-  const finalBorderColorB = 140 // B for #1B5F8C
+  const prevNov2025 = () => {
+    setNov2025Index((prev) => (prev - 1 + november2025Images.length) % november2025Images.length)
+  }
 
-  const interpolatedR = initialBorderColorR * (1 - scrollZoomProgress) + finalBorderColorR * scrollZoomProgress
-  const interpolatedG = initialBorderColorG * (1 - scrollZoomProgress) + finalBorderColorG * scrollZoomProgress
-  const interpolatedB = initialBorderColorB * (1 - scrollZoomProgress) + finalBorderColorB * scrollZoomProgress
+  const handleNov2025TouchStart = (e: React.TouchEvent) => {
+    setNov2025TouchStart(e.touches[0].clientX)
+  }
 
-  const dynamicBorderColor = `rgb(${interpolatedR}, ${interpolatedG}, ${interpolatedB})`
+  const handleNov2025TouchEnd = (e: React.TouchEvent) => {
+    if (nov2025TouchStart === null) return
+    const touchEnd = e.changedTouches[0].clientX
+    const diff = nov2025TouchStart - touchEnd
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) nextNov2025()
+      else prevNov2025()
+    }
+    setNov2025TouchStart(null)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmissionMessage(null)
+    try {
+      const result = await sendBookingEmail(formData)
+      if (result.success) {
+        setSubmissionMessage("Thanks for your interest in joining us, we'll get back to you soon.")
+        setFormData({ name: "", email: "", hikeMonth: "", people: 1, message: "" })
+      } else {
+        setSubmissionMessage(result.error || "Something went wrong. Please try again.")
+      }
+    } catch {
+      setSubmissionMessage("An unexpected error occurred. Please try again later.")
+    }
+  }
 
   return (
-    <>
-      <div className="bg-[#F4F4F4] text-[#1B5F8C] min-h-screen">
-        {/* Hero Section */}
-        <section className="relative h-screen flex items-center justify-center text-white overflow-hidden">
-          {heroImages.map((image, index) => (
-            <div
-              key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ${
-                index === currentSlide ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              <Image
-                src={image || "/placeholder.svg"}
-                alt={`Wild Coast landscape ${index + 1} - Pristine beaches and dramatic cliffs of Mpondoland`}
-                fill
-                className="object-cover"
-                priority={index === 0}
-                sizes="100vw"
-              />
-            </div>
-          ))}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1B5F8C]/70 to-[#3AAFB9]/50 z-10" />
-
-          <div className="absolute bottom-6 right-6 z-30 flex flex-col gap-3">
-            <a
-              href="tel:+27724285109"
-              className="w-10 h-10 bg-[#E2B659] rounded-full flex items-center justify-center text-[#1B5F8C] hover:bg-white transition-colors duration-300 shadow-lg"
-              aria-label="Call us"
-            >
-              <Phone className="w-5 h-5" />
-            </a>
-            <a
-              href="mailto:sinegugu@wildcoasttours.co.za"
-              className="w-10 h-10 bg-[#E2B659] rounded-full flex items-center justify-center text-[#1B5F8C] hover:bg-white transition-colors duration-300 shadow-lg"
-              aria-label="Email us"
-            >
-              <Mail className="w-5 h-5" />
-            </a>
+    <main className="min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu overflow-hidden">
+      {/* Hero Section */}
+      <section className="relative h-screen w-full">
+        {heroImages.map((image, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              currentHeroImage === index ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <Image
+              src={image || "/placeholder.svg"}
+              alt={`Wild Coast landscape ${index + 1}`}
+              fill
+              className="object-cover"
+              priority={index === 0}
+              sizes="100vw"
+            />
           </div>
+        ))}
 
-          <div className="text-center px-4 max-w-4xl relative z-20">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 font-ubuntu">Wild Coast Tours</h1>
-            <p className="text-lg md:text-xl mb-10">Authentic Eco-Tourism Experiences in Mpondoland</p>
-            <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-[#E2B659] text-[#1B5F8C] px-8 py-3 rounded-full font-semibold hover:bg-[#E2B659]/90 transition duration-300 transform hover:scale-105 cursor-pointer">
-                  Book Your Adventure
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md bg-gray-50">
-                <DialogHeader>
-                  <DialogTitle className="text-xl font-bold text-[#1B5F8C] text-center">
-                    Book Your Adventure
-                  </DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleBookingSubmit} className="space-y-4">
-                  <Input
-                    placeholder="Your Name"
-                    value={formData.name}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                    className="border-[#1B5F8C] focus:ring-[#E2B659]"
-                    required
-                    aria-label="Your full name"
-                  />
-                  <Input
-                    type="email"
-                    placeholder="Email Address"
-                    value={formData.email}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                    className="border-[#1B5F8C] focus:ring-[#E2B659]"
-                    required
-                    aria-label="Your email address"
-                  />
+        <div className="absolute inset-0 bg-black/40 z-10" />
+
+        <div className="absolute bottom-6 right-6 z-30 flex flex-col gap-3">
+          <a
+            href="tel:+27724285109"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-[#1B5F8C] hover:bg-white transition-colors duration-300 shadow-lg"
+            style={{ backgroundColor: ACCENT_COLOR }}
+            aria-label="Call us"
+          >
+            <Phone className="w-5 h-5" />
+          </a>
+          <a
+            href="mailto:sinegugu@wildcoasttours.co.za"
+            className="w-10 h-10 rounded-full flex items-center justify-center text-[#1B5F8C] hover:bg-white transition-colors duration-300 shadow-lg"
+            style={{ backgroundColor: ACCENT_COLOR }}
+            aria-label="Email us"
+          >
+            <Mail className="w-5 h-5" />
+          </a>
+        </div>
+
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-20 px-4">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4 font-ubuntu">Wild Coast Tours</h1>
+          <p className="text-lg md:text-xl mb-10">Authentic Eco-Tourism Experiences in Mpondoland</p>
+          <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
+            <DialogTrigger asChild>
+              <Button
+                className="px-8 py-3 rounded-full font-semibold hover:opacity-90 transition duration-300 transform hover:scale-105 cursor-pointer"
+                style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
+              >
+                Book Your Adventure
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md bg-gray-50">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-[#1B5F8C] text-center">Book Your Adventure</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                <Input
+                  placeholder="Your Name"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                  className="border-[#1B5F8C] focus:ring-[#F7931A]"
+                  aria-label="Your name"
+                />
+                <Input
+                  type="email"
+                  placeholder="Your Email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
+                  className="border-[#1B5F8C] focus:ring-[#F7931A]"
+                  aria-label="Your email address"
+                />
+                <div>
+                  <label htmlFor="hikeMonth" className="block text-sm font-medium text-[#1B5F8C] mb-1">
+                    Which hike would you like to join?
+                  </label>
                   <select
-                    value={formData.selectedHike}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, selectedHike: e.target.value }))}
-                    className="w-full px-3 py-2 border border-[#1B5F8C] rounded-md focus:ring-[#E2B659] focus:border-[#E2B659]"
+                    id="hikeMonth"
                     required
-                    aria-label="Select which hike you'd like to join"
+                    value={formData.hikeMonth}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, hikeMonth: e.target.value }))}
+                    className="w-full px-3 py-2 border border-[#1B5F8C] rounded-md focus:ring-[#F7931A] focus:border-[#F7931A]"
+                    aria-label="Select your preferred hike month"
                   >
-                    <option value="">Which hike would you like to join?</option>
+                    <option value="">Select a month</option>
                     <option value="January">January</option>
                     <option value="February">February</option>
                     <option value="March">March</option>
@@ -389,361 +383,503 @@ export default function WildCoastToursClient() {
                     <option value="November">November</option>
                     <option value="December">December</option>
                   </select>
-                  <div className="space-y-3">
-                    <label className="text-sm font-medium text-[#1B5F8C] mb-3 block">
-                      How many people? ({formData.numberOfPeople[0]}{" "}
-                      {formData.numberOfPeople[0] === 1 ? "person" : "people"})
-                    </label>
-                    <Slider
-                      value={formData.numberOfPeople}
-                      onValueChange={(value) => setFormData((prev) => ({ ...prev, numberOfPeople: value }))}
-                      max={20}
-                      min={1}
-                      step={1}
-                      className="w-full"
-                      aria-label="Number of people for the hike"
-                    />
-                    <div className="flex justify-between text-xs text-[#1B5F8C] opacity-70">
-                      <span>1</span>
-                      <span>20</span>
-                    </div>
+                </div>
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-[#1B5F8C]">
+                    How many people? <span className="font-bold">{formData.people}</span>
+                  </label>
+                  <Slider
+                    value={[formData.people]}
+                    onValueChange={(value) => setFormData((prev) => ({ ...prev, people: value[0] }))}
+                    max={20}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                    aria-label="Number of people for the hike"
+                  />
+                  <div className="flex justify-between text-xs text-[#1B5F8C] opacity-70">
+                    <span>1</span>
+                    <span>20</span>
                   </div>
-                  <Textarea
-                    placeholder="Additional Details & Preferences"
-                    rows={4}
-                    value={formData.message}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
-                    className="border-[#1B5F8C] focus:ring-[#E2B659]"
-                    aria-label="Additional preferences and special requests"
-                  />
-                  <Button
-                    type="submit"
-                    className="w-full bg-[#E2B659] text-[#1B5F8C] hover:bg-[#E2B659]/90 cursor-pointer"
-                  >
-                    Submit Booking Request
-                  </Button>
-                </form>
-                {submissionMessage && <p className="text-center text-sm mt-4 text-[#1B5F8C]">{submissionMessage}</p>}
-              </DialogContent>
-            </Dialog>
-          </div>
-        </section>
-
-        {/* About Section */}
-        <section id="about" className="py-24 px-4 max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center gap-16">
-            <div className="md:w-1/3 flex justify-center fade-in">
-              <div
-                ref={profileImageRef}
-                className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer"
-                onMouseEnter={() => setIsProfileHovered(true)}
-                onMouseLeave={() => setIsProfileHovered(false)}
-              >
-                <div
-                  className="relative w-full h-full overflow-hidden rounded-full shadow-xl border-4 transition-all duration-700 ease-out"
-                  style={{
-                    transform: `scale(${borderScale})`,
-                    boxShadow: `0 0 ${shadowIntensity}px rgba(226,182,89,${shadowOpacity})`,
-                    borderColor: dynamicBorderColor, // Apply dynamic Mpondo blue border
-                  }}
+                </div>
+                <Textarea
+                  placeholder="Additional Details & Preferences"
+                  rows={4}
+                  value={formData.message}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, message: e.target.value }))}
+                  className="border-[#1B5F8C] focus:ring-[#F7931A]"
+                  aria-label="Additional preferences and special requests"
+                />
+                <Button
+                  type="submit"
+                  className="w-full hover:opacity-90 cursor-pointer"
+                  style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
                 >
-                  <Image
-                    src="/images/sinegugu-portrait.png"
-                    alt="Sinegugu Zukulu - Guide and Environmental Activist for Wild Coast Tours"
-                    fill
-                    className="object-cover transition-all duration-1000 ease-out"
-                    style={{
-                      transform: `scale(${imageScale}) rotate(${imageRotate}deg)`, // Applied new rotate
-                      filter: `contrast(${imageContrast})`, // Applied new contrast
-                    }}
-                    priority
-                    sizes="(max-width: 768px) 256px, 320px"
-                  />
-                  {/* Animated binocular zoom overlay effect */}
-                  <div
-                    className="absolute inset-0 bg-gradient-radial from-transparent via-black/30 to-black/70 rounded-full transition-opacity duration-500" // Darker gradient for more fisheye
-                    style={{ opacity: overlayOpacity }}
-                  />
+                  Submit Booking Request
+                </Button>
+              </form>
+              {submissionMessage && <p className="text-center text-sm mt-4 text-[#1B5F8C]">{submissionMessage}</p>}
+            </DialogContent>
+          </Dialog>
+        </div>
+      </section>
 
-                  {/* Removed: Simplified binocular effect without crosshairs (outer and inner rings) */}
-
-                  {/* Edge glow effect */}
-                  <div
-                    className="absolute inset-0 rounded-full transition-opacity duration-500 shadow-[inset_0_0_50px_rgba(226,182,89,0.3)]"
-                    style={{ opacity: overlayOpacity }}
-                  />
-                </div>
-
-                {/* Floating particles effect */}
-                <div
-                  className="absolute inset-0 pointer-events-none transition-opacity duration-700"
-                  style={{ opacity: overlayOpacity }}
-                >
-                  <div
-                    className="absolute top-4 left-4 w-2 h-2 bg-[#E2B659]/60 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.1s" }}
-                  />
-                  <div
-                    className="absolute top-8 right-6 w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.3s" }}
-                  />
-                  <div
-                    className="absolute bottom-6 left-8 w-1 h-1 bg-[#E2B659]/80 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.5s" }}
-                  />
-                  <div
-                    className="absolute bottom-4 right-4 w-1.5 h-1.5 bg-white/60 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.7s" }}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="md:w-2/3 fade-in">
-              <div className="bg-[#1B5F8C] text-[#F4F4F4] px-3 py-1 rounded-full text-sm inline-block mb-6">
-                Our Story
-              </div>
-              <h2 className="text-xl md:text-2xl font-bold mb-6 font-ubuntu">Discover Mpondoland's Beauty & Culture</h2>
-              <p className="text-base mb-8">
-                Wild Coast Tours offers authentic eco-tourism experiences in the breathtaking region of Mpondoland. Our
-                tours are designed to showcase the stunning landscapes, rich biodiversity, and vibrant Mpondo culture,
-                all while supporting sustainable community development and environmental conservation efforts led by
-                local activists like Sinegugu Zukulu.
-              </p>
-              <Button
-                asChild
-                className="bg-[#064E3B] text-white hover:bg-[#064E3B]/90 rounded-full px-8 py-3 cursor-pointer"
-              >
-                <a href="https://wildcoasttours.vercel.app" target="_blank" rel="noopener noreferrer">
-                  <span className="block text-xs mt-1 opacity-80">Wild Coast Guided Tours</span>
-                </a>
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Campaigns Section */}
-        <section id="campaigns" className="py-24 bg-white">
-          <div className="max-w-6xl mx-auto px-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-center mb-20 fade-in font-ubuntu">
-              Environmental Campaigns & Activism
-            </h2>
-            <div className="grid md:grid-cols-3 gap-10">
-              <article className="bg-[#F4F4F4] rounded-lg overflow-hidden shadow-md transition duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg fade-in cursor-pointer">
-                <div className="relative h-48">
-                  <Image
-                    src="/images/campaign-shell-protest.jpg" // Updated image source
-                    alt="Community protest against Shell's seismic blasting on Wild Coast"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold mb-4 font-ubuntu">Stopping Shell's Seismic Blasting</h3>
-                  <p className="text-sm mb-4">
-                    Led the 2022 legal victory protecting whales and community rights against destructive seismic
-                    testing along the Wild Coast.
-                  </p>
-                </div>
-              </article>
-
-              <article className="bg-[#F9F6EE] rounded-lg overflow-hidden shadow-md transition duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg fade-in cursor-pointer">
-                <div className="relative h-48">
-                  <Image
-                    src="/images/campaign-community-conservation.jpg" // Updated image source
-                    alt="Mpondo community sustainable farming and agroecology practices"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold mb-4 font-ubuntu">Community-Led Conservation</h3>
-                  <p className="text-sm mb-4">
-                    Promoting agroecology and cultural tourism as sustainable alternatives to extractive industries in
-                    Mpondoland.
-                  </p>
-                </div>
-              </article>
-
-              <article className="bg-[#F9F6EE] rounded-lg overflow-hidden shadow-md transition duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg fade-in cursor-pointer">
-                <div className="relative h-48">
-                  <Image
-                    src="/images/campaign-global-advocacy.jpg" // Updated image source
-                    alt="Global advocacy for Indigenous environmental rights"
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold mb-4 font-ubuntu">Global Environmental Advocacy</h3>
-                  <p className="text-sm mb-4">
-                    Sharing Mpondoland's story on international platforms to build solidarity for Indigenous
-                    environmental rights.
-                  </p>
-                </div>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        {/* Timeline Section */}
-        <section id="timeline" className="py-24 md:py-28 bg-[#1B5F8C] text-[#F4F4F4]">
-          <div className="max-w-7xl mx-auto px-4">
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-center mb-8 md:mb-10 fade-in font-ubuntu">
-              Wild Coast Environmental Activism Timeline
-            </h2>
-
-            {/* Current Event Display */}
+      {/* About Section */}
+      <section id="about" className="py-24 px-4 max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row items-center gap-16">
+          <div className="md:w-1/3 flex justify-center fade-in">
             <div
-              className="text-center relative timeline-event min-h-[120px] flex flex-col justify-center px-0"
+              ref={profileImageRef}
+              className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer"
+              onMouseEnter={() => setIsProfileHovered(true)}
+              onMouseLeave={() => setIsProfileHovered(false)}
+            >
+              <div
+                className="relative w-full h-full overflow-hidden rounded-full shadow-xl border-4 transition-all duration-700 ease-out"
+                style={{
+                  transform: `scale(${borderScale})`,
+                  boxShadow: `0 0 ${shadowIntensity}px rgba(247,147,26,${shadowOpacity})`,
+                  borderColor: dynamicBorderColor,
+                }}
+              >
+                <Image
+                  src="/images/sinegugu-portrait.png"
+                  alt="Sinegugu Zukulu - Guide and Environmental Activist for Wild Coast Tours"
+                  fill
+                  className="object-cover transition-all duration-1000 ease-out"
+                  style={{
+                    transform: `scale(${imageScale}) rotate(${imageRotate}deg)`,
+                    filter: `contrast(${imageContrast})`,
+                  }}
+                  priority
+                  sizes="(max-width: 768px) 256px, 320px"
+                />
+                <div
+                  className="absolute inset-0 bg-gradient-radial from-transparent via-black/30 to-black/70 rounded-full transition-opacity duration-500"
+                  style={{ opacity: overlayOpacity }}
+                />
+                <div
+                  className="absolute inset-0 rounded-full transition-opacity duration-500 shadow-[inset_0_0_50px_rgba(247,147,26,0.3)]"
+                  style={{ opacity: overlayOpacity }}
+                />
+              </div>
+              <div
+                className="absolute inset-0 pointer-events-none transition-opacity duration-700"
+                style={{ opacity: overlayOpacity }}
+              >
+                <div
+                  className="absolute top-4 left-4 w-2 h-2 rounded-full animate-bounce"
+                  style={{ backgroundColor: `${ACCENT_COLOR}99`, animationDelay: "0.1s" }}
+                />
+                <div
+                  className="absolute top-8 right-6 w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.3s" }}
+                />
+                <div
+                  className="absolute bottom-6 left-8 w-1 h-1 rounded-full animate-bounce"
+                  style={{ backgroundColor: `${ACCENT_COLOR}cc`, animationDelay: "0.5s" }}
+                />
+                <div
+                  className="absolute bottom-4 right-4 w-1.5 h-1.5 bg-white/60 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.7s" }}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="md:w-2/3 fade-in">
+            <div className="bg-[#1B5F8C] text-[#F4F4F4] px-3 py-1 rounded-full text-sm inline-block mb-6">
+              Our Story
+            </div>
+            <h2 className="text-xl md:text-2xl font-bold mb-6 font-ubuntu">Discover Mpondoland's Beauty & Culture</h2>
+            <p className="text-base mb-8">
+              Wild Coast Tours offers authentic eco-tourism experiences in the breathtaking region of Mpondoland. Our
+              tours are designed to showcase the stunning landscapes, rich biodiversity, and vibrant Mpondo culture, all
+              while supporting sustainable community development and environmental conservation efforts led by local
+              activists like Sinegugu Zukulu.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="november-2025" className="py-16 bg-[#1B5F8C]">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 font-ubuntu text-white">Our Tours</h2>
+          <h3 className="text-xl md:text-2xl font-bold text-center mb-10 font-ubuntu" style={{ color: ACCENT_COLOR }}>
+            2025 November
+          </h3>
+
+          {/* Fullscreen Carousel */}
+          <div
+            className="relative w-full h-[60vh] md:h-[70vh] rounded-lg overflow-hidden"
+            onTouchStart={handleNov2025TouchStart}
+            onTouchEnd={handleNov2025TouchEnd}
+          >
+            <div className="relative w-full h-full">
+              <Image
+                src={november2025Images[nov2025Index].src || "/placeholder.svg"}
+                alt={november2025Images[nov2025Index].alt}
+                fill
+                className="object-cover transition-all duration-500"
+                sizes="100vw"
+                priority
+              />
+
+              <button
+                onClick={() => setZoomedImage(november2025Images[nov2025Index].src)}
+                className="absolute top-4 right-4 w-12 h-12 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer z-10"
+                aria-label="Zoom image"
+              >
+                <ZoomIn className="w-6 h-6" />
+              </button>
+
+              <button
+                onClick={prevNov2025}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer z-10"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="w-8 h-8" />
+              </button>
+              <button
+                onClick={nextNov2025}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer z-10"
+                aria-label="Next image"
+              >
+                <ChevronRight className="w-8 h-8" />
+              </button>
+
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/50 text-white text-sm">
+                {nov2025Index + 1} / {november2025Images.length}
+              </div>
+            </div>
+          </div>
+
+          {/* Thumbnail Strip */}
+          <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+            {november2025Images.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setNov2025Index(idx)}
+                className={`flex-shrink-0 relative w-20 h-14 md:w-24 md:h-16 rounded-md overflow-hidden transition-all duration-300 cursor-pointer ${
+                  idx === nov2025Index ? "scale-105 opacity-100" : "opacity-60 hover:opacity-100"
+                }`}
+                style={{
+                  outline: idx === nov2025Index ? `2px solid ${ACCENT_COLOR}` : "none",
+                  outlineOffset: "2px",
+                }}
+                aria-label={`View image ${idx + 1}`}
+              >
+                <Image src={img.src || "/placeholder.svg"} alt={img.alt} fill className="object-cover" sizes="96px" />
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Zoom Modal */}
+      {zoomedImage && (
+        <div
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+          onClick={() => setZoomedImage(null)}
+        >
+          <button
+            onClick={() => setZoomedImage(null)}
+            className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer z-10"
+            aria-label="Close zoom"
+          >
+            <X className="w-8 h-8" />
+          </button>
+          <div className="relative w-full h-full max-w-7xl max-h-[90vh] m-4">
+            <Image
+              src={zoomedImage || "/placeholder.svg"}
+              alt="Zoomed view"
+              fill
+              className="object-contain"
+              sizes="100vw"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              const newIndex = (nov2025Index - 1 + november2025Images.length) % november2025Images.length
+              setNov2025Index(newIndex)
+              setZoomedImage(november2025Images[newIndex].src)
+            }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer"
+            aria-label="Previous image"
+          >
+            <ChevronLeft className="w-10 h-10" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              const newIndex = (nov2025Index + 1) % november2025Images.length
+              setNov2025Index(newIndex)
+              setZoomedImage(november2025Images[newIndex].src)
+            }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer"
+            aria-label="Next image"
+          >
+            <ChevronRight className="w-10 h-10" />
+          </button>
+        </div>
+      )}
+
+      {/* Campaigns Section */}
+      <section id="campaigns" className="py-24 bg-white">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-20 fade-in font-ubuntu">
+            Environmental Campaigns & Activism
+          </h2>
+          <div className="grid md:grid-cols-3 gap-10">
+            <article className="bg-[#F4F4F4] rounded-lg overflow-hidden shadow-md transition duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg fade-in cursor-pointer">
+              <div className="relative h-48">
+                <Image
+                  src="/images/campaign-shell-protest.jpg"
+                  alt="Community protest against Shell's seismic blasting on Wild Coast"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-lg font-bold mb-4 font-ubuntu">Stopping Shell's Seismic Blasting</h3>
+                <p className="text-sm mb-4">
+                  Led the 2022 legal victory protecting whales and community rights against destructive seismic testing
+                  along the Wild Coast.
+                </p>
+              </div>
+            </article>
+
+            <article className="bg-[#F9F6EE] rounded-lg overflow-hidden shadow-md transition duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg fade-in cursor-pointer">
+              <div className="relative h-48">
+                <Image
+                  src="/images/campaign-xolobeni-mining.jpg"
+                  alt="Xolobeni community standing against titanium mining"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-lg font-bold mb-4 font-ubuntu">Xolobeni Mining Resistance</h3>
+                <p className="text-sm mb-4">
+                  Supporting the landmark 2018 court ruling that affirmed community's Right to Say No to mining on
+                  ancestral lands.
+                </p>
+              </div>
+            </article>
+
+            <article className="bg-[#F4F4F4] rounded-lg overflow-hidden shadow-md transition duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg fade-in cursor-pointer">
+              <div className="relative h-48">
+                <Image
+                  src="/images/campaign-global-advocacy.jpg"
+                  alt="International environmental advocacy for Mpondoland"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-lg font-bold mb-4 font-ubuntu">Global Environmental Advocacy</h3>
+                <p className="text-sm mb-4">
+                  Sharing Mpondoland's story on international platforms to build solidarity for Indigenous environmental
+                  rights.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* Timeline Section */}
+      <section id="timeline" className="py-24 md:py-28 bg-[#1B5F8C] text-[#F4F4F4]">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-center mb-8 md:mb-10 fade-in font-ubuntu">
+            Wild Coast Environmental Activism Timeline
+          </h2>
+
+          <div
+            className="text-center relative timeline-event min-h-[120px] flex flex-col justify-center px-0"
+            onTouchStart={handleDragStart}
+            onTouchMove={handleDragMove}
+            onTouchEnd={handleDragEnd}
+            role="tabpanel"
+            id={`timeline-panel-${currentTimelineEvent.year}`}
+            aria-labelledby={`timeline-tab-${currentTimelineEvent.year}`}
+          >
+            <h3
+              className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 font-ubuntu"
+              style={{ color: ACCENT_COLOR }}
+            >
+              {currentTimelineEvent.year}
+            </h3>
+            <p className="text-base md:text-lg max-w-4xl mx-auto leading-normal min-h-[120px] text-center py-4">
+              {currentTimelineEvent.info}
+            </p>
+          </div>
+
+          <div className="flex justify-center mt-10">
+            <div
+              className="flex flex-wrap gap-3 justify-center max-w-full cursor-grab active:cursor-grabbing select-none px-2"
+              onMouseDown={handleDragStart}
+              onMouseMove={handleDragMove}
+              onMouseUp={handleDragEnd}
+              onMouseLeave={handleDragEnd}
               onTouchStart={handleDragStart}
               onTouchMove={handleDragMove}
               onTouchEnd={handleDragEnd}
-              role="tabpanel"
-              id={`timeline-panel-${currentTimelineEvent.year}`}
-              aria-labelledby={`timeline-tab-${currentTimelineEvent.year}`}
+              role="tablist"
+              aria-label="Timeline navigation"
             >
-              <h3
-                className={`text-xl md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 font-ubuntu text-[#E2B659]`} // Made heading more compact
-              >
-                {currentTimelineEvent.year}
-              </h3>
-              <p
-                className={`text-base md:text-lg max-w-4xl mx-auto leading-normal min-h-[120px] text-center py-4`} // Made paragraph more compact and increased min-height
-              >
-                {currentTimelineEvent.info}
-              </p>
-            </div>
-
-            {/* Timeline Year Tabs with Hover and Drag - Moved to bottom */}
-            <div className="flex justify-center mt-10">
-              <div
-                className="flex flex-wrap gap-3 justify-center max-w-full cursor-grab active:cursor-grabbing select-none px-2"
-                onMouseDown={handleDragStart}
-                onMouseMove={handleDragMove}
-                onMouseUp={handleDragEnd}
-                onMouseLeave={handleDragEnd}
-                onTouchStart={handleDragStart}
-                onTouchMove={handleDragMove}
-                onTouchEnd={handleDragEnd}
-                role="tablist"
-                aria-label="Timeline navigation"
-              >
-                {timelineData.map((item, index) => (
-                  <button
-                    key={index}
-                    onMouseEnter={() => !isDragging && selectTimelineEvent(index)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-full text-xs md:text-sm transition-all duration-300 transform hover:scale-110 cursor-pointer ${
-                      currentTimelineEvent.year === item.year
-                        ? "bg-[#E2B659] text-[#1B5F8C] font-bold shadow-lg scale-110"
-                        : "bg-[#F4F4F4]/20 text-[#F4F4F4] hover:bg-[#F4F4F4]/40 hover:shadow-md"
-                    }`}
-                    role="tab"
-                    aria-selected={currentTimelineEvent.year === item.year}
-                    aria-controls={`timeline-panel-${item.year}`}
-                  >
-                    {item.year}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {selectedTimelineItem && (
-              <div className="bg-white text-[#1B5F8C] p-6 rounded-lg shadow-xl max-w-md mx-auto mt-8">
-                <h3 className="text-lg font-bold mb-2 font-ubuntu">{selectedTimelineItem.year}</h3>
-                <p className="text-sm md:text-base mb-4">{selectedTimelineItem.info}</p>
-                <Button
-                  onClick={() => setSelectedTimelineItem(null)}
-                  variant="ghost"
-                  className="text-[#E2B659] hover:text-[#E2B659]/80 cursor-pointer"
+              {timelineData.map((item, index) => (
+                <button
+                  key={index}
+                  onMouseEnter={() => !isDragging && selectTimelineEvent(index)}
+                  className={`flex-shrink-0 px-4 py-2 rounded-full text-xs md:text-sm transition-all duration-300 transform hover:scale-110 cursor-pointer ${
+                    currentTimelineEvent.year === item.year
+                      ? "font-bold shadow-lg scale-110"
+                      : "bg-[#F4F4F4]/20 text-[#F4F4F4] hover:bg-[#F4F4F4]/40 hover:shadow-md"
+                  }`}
+                  style={
+                    currentTimelineEvent.year === item.year ? { backgroundColor: ACCENT_COLOR, color: "#1B5F8C" } : {}
+                  }
+                  role="tab"
+                  aria-selected={currentTimelineEvent.year === item.year}
+                  aria-controls={`timeline-panel-${item.year}`}
                 >
-                  Close
-                </Button>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="py-16 bg-[#1B5F8C] text-[#F4F4F4] relative">
-          {" "}
-          {/* Added relative for absolute positioning */}
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="mb-8 md:mb-0 text-center md:text-left">
-                <p className="text-base font-bold font-ubuntu">Wild Coast Tours</p>
-                <p className="text-xs opacity-80">Authentic Eco-Tourism Experiences in Mpondoland</p>
-                <div className="mt-3">
-                  <span className="bg-[#1B5F8C] text-[#F4F4F4] px-3 py-1 rounded-full text-xs">
-                    Promoting Eco-Mpondo Tourism
-                  </span>
-                </div>
-                <address className="text-xs opacity-70 mt-3 not-italic">Mpondoland, Eastern Cape, South Africa</address>
-              </div>
-              <div className="flex items-center gap-4">
-                <a
-                  href="tel:+27724285109"
-                  aria-label="Call Wild Coast Tours"
-                  className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center hover:bg-[#E2B659] hover:text-[#1B5F8C] transition-colors duration-300"
-                >
-                  <Phone className="w-5 h-5" />
-                </a>
-                <a
-                  href="mailto:sinegugu@wildcoasttours.co.za"
-                  aria-label="Email Wild Coast Tours"
-                  className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center hover:bg-[#E2B659] hover:text-[#1B5F8C] transition-colors duration-300"
-                >
-                  <Mail className="w-5 h-5" />
-                </a>
-                <a
-                  href="https://facebook.com/wildcoasttours"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Follow Wild Coast Tours on Facebook"
-                  className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center hover:bg-[#E2B659] hover:text-[#1B5F8C] transition-colors duration-300"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
-                  </svg>
-                </a>
-                <a
-                  href="https://www.instagram.com/wildcoasttours/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Follow Wild Coast Tours on Instagram"
-                  className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center hover:bg-[#E2B659] hover:text-[#1B5F8C] transition-colors duration-300"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.63c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 4.041v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" />
-                  </svg>
-                </a>
-                <a
-                  href="https://www.tiktok.com/@wildcoasttours"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Follow Wild Coast Tours on TikTok"
-                  className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center hover:bg-[#E2B659] hover:text-[#1B5F8C] transition-colors duration-300"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-            <div className="border-t border-[#F9F6EE] border-opacity-20 mt-10 pt-10 text-center text-sm opacity-80 relative">
-              {" "}
-              {/* Added relative for image positioning */}
-              <p className="text-xs">&copy; 2025 Wild Coast Tours. | Masihamba</p>
-              <p className="text-xs mt-2">
-                Supporting sustainable tourism and environmental conservation in Mpondoland
-              </p>
-              {/* New image positioned at the bottom right */}
+                  {item.year}
+                </button>
+              ))}
             </div>
           </div>
-        </footer>
-      </div>
-    </>
+
+          {selectedTimelineItem && (
+            <div className="bg-white text-[#1B5F8C] p-6 rounded-lg shadow-xl max-w-md mx-auto mt-8">
+              <h3 className="text-lg font-bold mb-2 font-ubuntu">{selectedTimelineItem.year}</h3>
+              <p className="text-sm md:text-base mb-4">{selectedTimelineItem.info}</p>
+              <Button
+                onClick={() => setSelectedTimelineItem(null)}
+                variant="ghost"
+                className="hover:opacity-80 cursor-pointer"
+                style={{ color: ACCENT_COLOR }}
+              >
+                Close
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-16 bg-[#1B5F8C] text-[#F4F4F4] relative">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-8 md:mb-0 text-center md:text-left">
+              <p className="text-base font-bold font-ubuntu">Wild Coast Tours</p>
+              <p className="text-xs opacity-80">Authentic Eco-Tourism Experiences in Mpondoland</p>
+              <div className="mt-3">
+                <span className="bg-[#1B5F8C] text-[#F4F4F4] px-3 py-1 rounded-full text-xs">
+                  Promoting Eco-Mpondo Tourism
+                </span>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <a
+                href="mailto:sinegugu@wildcoasttours.co.za"
+                className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center transition-colors duration-300"
+                style={{ ["--hover-bg" as string]: ACCENT_COLOR }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = ACCENT_COLOR
+                  e.currentTarget.style.color = "#1B5F8C"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(244,244,244,0.2)"
+                  e.currentTarget.style.color = "#F4F4F4"
+                }}
+                aria-label="Email us"
+              >
+                <Mail className="w-5 h-5" />
+              </a>
+              <a
+                href="tel:+27724285109"
+                className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center transition-colors duration-300"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = ACCENT_COLOR
+                  e.currentTarget.style.color = "#1B5F8C"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(244,244,244,0.2)"
+                  e.currentTarget.style.color = "#F4F4F4"
+                }}
+                aria-label="Call us"
+              >
+                <Phone className="w-5 h-5" />
+              </a>
+              <a
+                href="https://facebook.com/wildcoasttours"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center transition-colors duration-300"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = ACCENT_COLOR
+                  e.currentTarget.style.color = "#1B5F8C"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(244,244,244,0.2)"
+                  e.currentTarget.style.color = "#F4F4F4"
+                }}
+                aria-label="Facebook"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+              </a>
+              <a
+                href="https://www.instagram.com/wildcoasttours/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center transition-colors duration-300"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = ACCENT_COLOR
+                  e.currentTarget.style.color = "#1B5F8C"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(244,244,244,0.2)"
+                  e.currentTarget.style.color = "#F4F4F4"
+                }}
+                aria-label="Instagram"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" />
+                </svg>
+              </a>
+              <a
+                href="https://www.tiktok.com/@wildcoasttours"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center transition-colors duration-300"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = ACCENT_COLOR
+                  e.currentTarget.style.color = "#1B5F8C"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(244,244,244,0.2)"
+                  e.currentTarget.style.color = "#F4F4F4"
+                }}
+                aria-label="TikTok"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div className="text-center mt-12 pt-8 border-t border-[#F4F4F4]/20">
+            <p className="text-xs opacity-60">© {new Date().getFullYear()} Wild Coast Tours. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </main>
   )
 }
