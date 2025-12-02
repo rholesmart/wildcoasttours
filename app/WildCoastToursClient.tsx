@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Slider } from "@/components/ui/slider"
+import { Mail, Phone } from "lucide-react" // Import icons for footer
 import { sendBookingEmail } from "@/actions/send-email" // Import the server action
 
 const heroImages = [
@@ -317,6 +318,23 @@ export default function WildCoastToursClient() {
           ))}
           <div className="absolute inset-0 bg-gradient-to-b from-[#1B5F8C]/70 to-[#3AAFB9]/50 z-10" />
 
+          <div className="absolute bottom-6 right-6 z-30 flex flex-col gap-3">
+            <a
+              href="tel:+27724285109"
+              className="w-10 h-10 bg-[#E2B659] rounded-full flex items-center justify-center text-[#1B5F8C] hover:bg-white transition-colors duration-300 shadow-lg"
+              aria-label="Call us"
+            >
+              <Phone className="w-5 h-5" />
+            </a>
+            <a
+              href="mailto:sinegugu@wildcoasttours.co.za"
+              className="w-10 h-10 bg-[#E2B659] rounded-full flex items-center justify-center text-[#1B5F8C] hover:bg-white transition-colors duration-300 shadow-lg"
+              aria-label="Email us"
+            >
+              <Mail className="w-5 h-5" />
+            </a>
+          </div>
+
           <div className="text-center px-4 max-w-4xl relative z-20">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 font-ubuntu">Wild Coast Tours</h1>
             <p className="text-lg md:text-xl mb-10">Authentic Eco-Tourism Experiences in Mpondoland</p>
@@ -358,20 +376,18 @@ export default function WildCoastToursClient() {
                     aria-label="Select which hike you'd like to join"
                   >
                     <option value="">Which hike would you like to join?</option>
-                    <option value="January - Coastal Trail Adventure">January - Coastal Trail Adventure</option>
-                    <option value="February - Waterfall Discovery Hike">February - Waterfall Discovery Hike</option>
-                    <option value="March - Cultural Village Walk">March - Cultural Village Walk</option>
-                    <option value="April - Whale Watching Expedition">April - Whale Watching Expedition</option>
-                    <option value="May - Sunrise Mountain Trek">May - Sunrise Mountain Trek</option>
-                    <option value="June - Traditional Fishing Experience">June - Traditional Fishing Experience</option>
-                    <option value="July - Winter Coastal Exploration">July - Winter Coastal Exploration</option>
-                    <option value="August - Heritage & History Trail">August - Heritage & History Trail</option>
-                    <option value="September - Spring Wildflower Walk">September - Spring Wildflower Walk</option>
-                    <option value="October - Bird Watching Safari">October - Bird Watching Safari</option>
-                    <option value="November - Multi-day Wild Coast Journey">
-                      November - Multi-day Wild Coast Journey
-                    </option>
-                    <option value="December - Summer Beach Adventure">December - Summer Beach Adventure</option>
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                    <option value="June">June</option>
+                    <option value="July">July</option>
+                    <option value="August">August</option>
+                    <option value="September">September</option>
+                    <option value="October">October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
                   </select>
                   <div className="space-y-3">
                     <label className="text-sm font-medium text-[#1B5F8C] mb-3 block">
@@ -666,12 +682,60 @@ export default function WildCoastToursClient() {
                 </div>
                 <address className="text-xs opacity-70 mt-3 not-italic">Mpondoland, Eastern Cape, South Africa</address>
               </div>
-              {/* Removed personal social media links */}
+              <div className="flex items-center gap-4">
+                <a
+                  href="tel:+27724285109"
+                  aria-label="Call Wild Coast Tours"
+                  className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center hover:bg-[#E2B659] hover:text-[#1B5F8C] transition-colors duration-300"
+                >
+                  <Phone className="w-5 h-5" />
+                </a>
+                <a
+                  href="mailto:sinegugu@wildcoasttours.co.za"
+                  aria-label="Email Wild Coast Tours"
+                  className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center hover:bg-[#E2B659] hover:text-[#1B5F8C] transition-colors duration-300"
+                >
+                  <Mail className="w-5 h-5" />
+                </a>
+                <a
+                  href="https://facebook.com/wildcoasttours"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow Wild Coast Tours on Facebook"
+                  className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center hover:bg-[#E2B659] hover:text-[#1B5F8C] transition-colors duration-300"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.instagram.com/wildcoasttours/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow Wild Coast Tours on Instagram"
+                  className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center hover:bg-[#E2B659] hover:text-[#1B5F8C] transition-colors duration-300"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.63c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 4.041v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.tiktok.com/@wildcoasttours"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow Wild Coast Tours on TikTok"
+                  className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center hover:bg-[#E2B659] hover:text-[#1B5F8C] transition-colors duration-300"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+                  </svg>
+                </a>
+              </div>
             </div>
             <div className="border-t border-[#F9F6EE] border-opacity-20 mt-10 pt-10 text-center text-sm opacity-80 relative">
               {" "}
               {/* Added relative for image positioning */}
-              <p className="text-xs">&copy; 2024 Wild Coast Tours. | Masihamba</p>
+              <p className="text-xs">&copy; 2025 Wild Coast Tours. | Masihamba</p>
               <p className="text-xs mt-2">
                 Supporting sustainable tourism and environmental conservation in Mpondoland
               </p>
