@@ -36,6 +36,16 @@ const november2025Images = [
   { src: "/images/nov-2025/phiwani-homestay.webp", alt: "Welcome to Phiwani's Homestay traditional building" },
   { src: "/images/nov-2025/group-beach.webp", alt: "Hiking group taking a break on sandy beach" },
   { src: "/images/nov-2025/orange-rondavels.webp", alt: "Traditional orange and green rondavels" },
+  { src: "/images/img-5352.webp", alt: "Serene river pool with rocky outcrops and waterfall" },
+  { src: "/images/img-5351.webp", alt: "Rocky coastline with ocean waves under overcast sky" },
+  { src: "/images/img-5316.webp", alt: "Rolling grasslands with dirt path through countryside" },
+  { src: "/images/img-5379.webp", alt: "Rural village with colorful houses overlooking the ocean" },
+  { src: "/images/img-5404.webp", alt: "Dramatic layered sandstone cliff formations" },
+  { src: "/images/img-5339.webp", alt: "Calm river with green hills on both sides" },
+  { src: "/images/img-5405.webp", alt: "Panoramic view of cliffs and gorges meeting the sea" },
+  { src: "/images/img-5335.webp", alt: "Peaceful estuary with rocks and sandy beach" },
+  { src: "/images/img-5313.webp", alt: "Deep gorge with river and layered rock formations" },
+  { src: "/images/img-5299.webp", alt: "Red earth terrain with palm trees and green hills" },
 ]
 
 const timelineData = [
@@ -505,7 +515,7 @@ export default function WildCoastToursClient() {
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 font-ubuntu text-white">Our Tours</h2>
           <h3 className="text-xl md:text-2xl font-bold text-center mb-10 font-ubuntu" style={{ color: ACCENT_COLOR }}>
-            2025 November
+            November 2025
           </h3>
 
           {/* Fullscreen Carousel */}
@@ -652,25 +662,6 @@ export default function WildCoastToursClient() {
             </article>
 
             <article className="bg-[#F9F6EE] rounded-lg overflow-hidden shadow-md transition duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg fade-in cursor-pointer">
-              <div className="relative h-48">
-                <Image
-                  src="/images/campaign-xolobeni-mining.jpg"
-                  alt="Xolobeni community standing against titanium mining"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="text-lg font-bold mb-4 font-ubuntu">Xolobeni Mining Resistance</h3>
-                <p className="text-sm mb-4">
-                  Supporting the landmark 2018 court ruling that affirmed community's Right to Say No to mining on
-                  ancestral lands.
-                </p>
-              </div>
-            </article>
-
-            <article className="bg-[#F4F4F4] rounded-lg overflow-hidden shadow-md transition duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg fade-in cursor-pointer">
               <div className="relative h-48">
                 <Image
                   src="/images/campaign-global-advocacy.jpg"
