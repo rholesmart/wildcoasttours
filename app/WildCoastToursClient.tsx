@@ -36,16 +36,50 @@ const november2025Images = [
   { src: "/images/nov-2025/phiwani-homestay.webp", alt: "Welcome to Phiwani's Homestay traditional building" },
   { src: "/images/nov-2025/group-beach.webp", alt: "Hiking group taking a break on sandy beach" },
   { src: "/images/nov-2025/orange-rondavels.webp", alt: "Traditional orange and green rondavels" },
-  { src: "/images/img-5352.webp", alt: "Serene river pool with rocky outcrops and waterfall" },
-  { src: "/images/img-5351.webp", alt: "Rocky coastline with ocean waves under overcast sky" },
-  { src: "/images/img-5316.webp", alt: "Rolling grasslands with dirt path through countryside" },
-  { src: "/images/img-5379.webp", alt: "Rural village with colorful houses overlooking the ocean" },
-  { src: "/images/img-5404.webp", alt: "Dramatic layered sandstone cliff formations" },
-  { src: "/images/img-5339.webp", alt: "Calm river with green hills on both sides" },
-  { src: "/images/img-5405.webp", alt: "Panoramic view of cliffs and gorges meeting the sea" },
-  { src: "/images/img-5335.webp", alt: "Peaceful estuary with rocks and sandy beach" },
-  { src: "/images/img-5313.webp", alt: "Deep gorge with river and layered rock formations" },
-  { src: "/images/img-5299.webp", alt: "Red earth terrain with palm trees and green hills" },
+  { src: "/images/nov-2025/red-sand-dunes.webp", alt: "Orange and red sand dunes with scattered rocks under blue sky" },
+  {
+    src: "/images/nov-2025/firewood-carrier-beach.webp",
+    alt: "Person carrying firewood bundle on head at sandy beach",
+  },
+  {
+    src: "/images/nov-2025/woman-drinking-tea-patio.webp",
+    alt: "Woman in orange dress with pink headwrap drinking tea on patio",
+  },
+  { src: "/images/nov-2025/cattle-grazing-green-field.webp", alt: "Mixed cattle herd grazing in lush green pasture" },
+  {
+    src: "/images/nov-2025/coastal-campfire-cooking.webp",
+    alt: "Campfire cooking under tarp by rocky coastline with ocean view",
+  },
+  {
+    src: "/images/nov-2025/waterfall-bluff-ocean-cliff.webp",
+    alt: "Dramatic waterfall cascading down layered cliff into ocean",
+  },
+  {
+    src: "/images/nov-2025/hikers-rock-pool-waterfall.webp",
+    alt: "Hikers exploring cascading rock pools with natural waterfall",
+  },
+  {
+    src: "/images/nov-2025/tranquil-river-rocky-hills.webp",
+    alt: "Calm river flowing between rocky vegetated hills under cloudy sky",
+  },
+  {
+    src: "/images/nov-2025/historic-stone-ruins-tour.webp",
+    alt: "Group touring historic stone tower ruins with guide",
+  },
+  {
+    src: "/images/nov-2025/rocky-stream-cliff-landscape.webp",
+    alt: "Rocky stream with dramatic cliff formation and textured clouds",
+  },
+  { src: "/images/img-5861.webp", alt: "Pink star-shaped wildflower with yellow center among green foliage" },
+  { src: "/images/img-5880.webp", alt: "Cascading waterfalls flowing into turquoise pool surrounded by rocky cliffs" },
+  { src: "/images/img-5823.webp", alt: "Group photo of hikers and local hosts at tropical lodge" },
+  { src: "/images/img-5906.webp", alt: "Traditional thatched-roof hut interior with colorful bedding" },
+  { src: "/images/img-5837.webp", alt: "Orange kayak crossing calm estuary waters with sandy beach backdrop" },
+  { src: "/images/img-5905.webp", alt: "Spacious rondavel interior with multiple beds and patterned rugs" },
+  { src: "/images/img-5798.webp", alt: "Local women in traditional Mpondo dress at community gathering" },
+  { src: "/images/img-5925.webp", alt: "Phiwani's Homestay wooden sign at sunset with rural landscape" },
+  { src: "/images/img-5913.webp", alt: "Don't Worry Spaza Shop with vibrant green wall and hiker" },
+  { src: "/images/img-5870.webp", alt: "Dramatic rock formations surrounding serene river pool" },
 ]
 
 const timelineData = [
@@ -150,6 +184,8 @@ export default function WildCoastToursClient() {
   const [nov2025Index, setNov2025Index] = useState(0)
   const [zoomedImage, setZoomedImage] = useState<string | null>(null)
   const [nov2025TouchStart, setNov2025TouchStart] = useState<number | null>(null)
+  const thumbnailStripRef = useRef<HTMLDivElement>(null)
+  const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([])
 
   // Timeline drag state
   const [isDragging, setIsDragging] = useState(false)
@@ -273,6 +309,17 @@ export default function WildCoastToursClient() {
     }
     setNov2025TouchStart(null)
   }
+
+  useEffect(() => {
+    const activeThumb = thumbnailRefs.current[nov2025Index]
+    if (activeThumb && thumbnailStripRef.current) {
+      activeThumb.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      })
+    }
+  }, [nov2025Index])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -531,9 +578,9 @@ export default function WildCoastToursClient() {
                 fill
                 className="object-cover transition-all duration-500"
                 sizes="100vw"
-                priority
+                priority={nov2025Index < 6}
+                loading={nov2025Index < 6 ? undefined : "lazy"}
               />
-
               <button
                 onClick={() => setZoomedImage(november2025Images[nov2025Index].src)}
                 className="absolute top-4 right-4 w-12 h-12 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer z-10"
@@ -564,10 +611,13 @@ export default function WildCoastToursClient() {
           </div>
 
           {/* Thumbnail Strip */}
-          <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
+          <div ref={thumbnailStripRef} className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
             {november2025Images.map((img, idx) => (
               <button
                 key={idx}
+                ref={(el) => {
+                  thumbnailRefs.current[idx] = el
+                }}
                 onClick={() => setNov2025Index(idx)}
                 className={`flex-shrink-0 relative w-20 h-14 md:w-24 md:h-16 rounded-md overflow-hidden transition-all duration-300 cursor-pointer ${
                   idx === nov2025Index ? "scale-105 opacity-100" : "opacity-60 hover:opacity-100"
@@ -578,7 +628,14 @@ export default function WildCoastToursClient() {
                 }}
                 aria-label={`View image ${idx + 1}`}
               >
-                <Image src={img.src || "/placeholder.svg"} alt={img.alt} fill className="object-cover" sizes="96px" />
+                <Image
+                  src={img.src || "/placeholder.svg"}
+                  alt={img.alt}
+                  fill
+                  className="object-cover"
+                  sizes="96px"
+                  loading={idx < 6 ? "eager" : "lazy"}
+                />
               </button>
             ))}
           </div>
@@ -606,6 +663,8 @@ export default function WildCoastToursClient() {
               className="object-contain"
               sizes="100vw"
               onClick={(e) => e.stopPropagation()}
+              priority={nov2025Index < 6}
+              loading={nov2025Index < 6 ? undefined : "lazy"}
             />
           </div>
           <button
@@ -842,7 +901,7 @@ export default function WildCoastToursClient() {
                 aria-label="Instagram"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" />
+                  <path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.63c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 4.041v.08c0 2.597.011 2.917.058 3.96.045.975.207 1.504.344 1.858.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" />
                 </svg>
               </a>
               <a
