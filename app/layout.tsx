@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
+import GoogleAnalytics from "./google-analytics";
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -206,6 +207,8 @@ export default function RootLayout({
         <meta name="classification" content="Tourism, Environmental Conservation, Cultural Heritage" />
         <meta name="coverage" content="Pondoland, Wild Coast, Eastern Cape, South Africa" />
         <meta name="subject" content="Eco-tourism, Environmental Conservation, Mpondo Culture, Wild Coast" />
+        <GoogleAnalytics />
+        
       </head>
       <body className={inter.className}>{children}</body>
     </html>
