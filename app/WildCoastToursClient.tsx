@@ -923,6 +923,25 @@ export default function WildCoastToursClient() {
                   <path d="M12 0C5.373 0 0 5.373 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12C24 5.373 18.627 0 12 0zm4.441 7.559c.614 0 1.114.5 1.114 1.114s-.5 1.114-1.114 1.114-1.114-.5-1.114-1.114.5-1.114 1.114-1.114zm-4.441 1.441c1.933 0 3.5 1.567 3.5 3.5s-1.567 3.5-3.5 3.5-3.5-1.567-3.5-3.5 1.567-3.5 3.5-3.5zm0-1.5c-2.761 0-5 2.239-5 5s2.239 5 5 5 5-2.239 5-5-2.239-5-5-5zm5.5 13h-11c-1.1 0-2-.9-2-2v-11c0-1.1.9-2 2-2h11c1.1 0 2 .9 2 2v11c0 1.1-.9 2-2 2z" />
                 </svg>
               </a>
+              <a
+                href="https://www.tiktok.com/@wildcoasttours"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center transition-colors duration-300"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = ACCENT_COLOR
+                  e.currentTarget.style.color = "#1B5F8C"
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "rgba(244,244,244,0.2)"
+                  e.currentTarget.style.color = "#F4F4F4"
+                }}
+                aria-label="TikTok"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.1 1.82 2.89 2.89 0 0 1 2.31-4.64 2.88 2.88 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.6a4.76 4.76 0 0 1-.54-.05z" />
+                </svg>
+              </a>
               
             </div>
           </div>
