@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -383,15 +384,15 @@ export default function WildCoastToursClient() {
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-20 px-4">
           <h1 className="text-3xl md:text-5xl font-bold mb-4 font-ubuntu">Wild Coast Tours</h1>
           <p className="text-lg md:text-xl mb-10">Authentic Eco-Tourism Experiences in Mpondoland</p>
+          <Link href="/booking">
+            <Button
+              className="px-8 py-3 rounded-full font-semibold hover:opacity-90 transition duration-300 transform hover:scale-105 cursor-pointer"
+              style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
+            >
+              Book Your Adventure
+            </Button>
+          </Link>
           <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-            <DialogTrigger asChild>
-              <Button
-                className="px-8 py-3 rounded-full font-semibold hover:opacity-90 transition duration-300 transform hover:scale-105 cursor-pointer"
-                style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
-              >
-                Book Your Adventure
-              </Button>
-            </DialogTrigger>
             <DialogContent className="max-w-md bg-gray-50">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold text-[#1B5F8C] text-center">Book Your Adventure</DialogTitle>
