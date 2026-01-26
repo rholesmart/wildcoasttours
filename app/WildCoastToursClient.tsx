@@ -738,6 +738,24 @@ export default function WildCoastToursClient() {
                 </p>
               </div>
             </article>
+
+            <article className="bg-[#E8F2F7] rounded-lg overflow-hidden shadow-md transition duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg fade-in cursor-pointer">
+              <div className="relative h-48">
+                <Image
+                  src="/images/campaign-community-conservation.jpg"
+                  alt="Ubuntu Philosophy - community conservation and collective stewardship"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+              <div className="p-6">
+                <h3 className="text-lg font-bold mb-4 font-ubuntu">Ubuntu Philosophy</h3>
+                <p className="text-sm mb-4">
+                  "I am because we are" - Our activism is rooted in collective action, shared responsibility, and the belief that environmental protection benefits the entire community.
+                </p>
+              </div>
+            </article>
           </div>
         </div>
       </section>
