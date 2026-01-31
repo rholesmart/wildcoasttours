@@ -848,7 +848,7 @@ export default function WildCoastToursClient() {
               Explore the Wild Coast
             </h2>
             <p className="text-[#1B5F8C]/70 max-w-2xl mx-auto">
-              Discover the breathtaking landmarks, hiking trails, and hidden gems of Mpondoland from above
+              Discover the breathtaking landmarks, hiking trails, and hidden gems of Mpondoland with Sinegugu and his team
             </p>
           </div>
           
@@ -856,16 +856,22 @@ export default function WildCoastToursClient() {
           <div className="relative rounded-2xl overflow-hidden shadow-2xl fade-in">
             <div className="aspect-[16/9] md:aspect-[21/9] w-full">
               <iframe
-                src="https://www.google.com/maps/d/embed?mid=1vKHqV_nFNqDqFJXLbVZJD8Gx8Q2xBvE&ehbc=2E312F&ll=-31.55,29.58&z=9"
+                src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d442089.5!2d29.7!3d-31.45!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sza!4v1706000000000"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
                 allowFullScreen
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Wild Coast Satellite Map with Landmarks"
+                title="Wild Coast Satellite Map - Port Edward to Port St Johns"
                 className="absolute inset-0"
               />
+            </div>
+            
+            {/* Location Labels Overlay */}
+            <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg">
+              <p className="text-sm font-semibold text-[#1B5F8C]">Wild Coast Region</p>
+              <p className="text-xs text-[#1B5F8C]/70">Port Edward to Port St Johns</p>
             </div>
           </div>
 
