@@ -11,6 +11,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Slider } from "@/components/ui/slider"
 import { Mail, Phone, ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react"
 import { sendBookingEmail } from "@/actions/send-email"
+import dynamic from "next/dynamic"
+
+const WildCoastMap = dynamic(() => import("@/components/WildCoastMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full bg-[#1B5F8C]/10 animate-pulse flex items-center justify-center">
+      <p className="text-[#1B5F8C]/50">Loading map...</p>
+    </div>
+  ),
+})
 
 const ACCENT_COLOR = "#F7931A"
 
@@ -855,17 +865,7 @@ export default function WildCoastToursClient() {
           {/* Map Container */}
           <div className="relative rounded-2xl overflow-hidden shadow-2xl fade-in">
             <div className="aspect-[16/9] md:aspect-[21/9] w-full">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d442089.5!2d29.85!3d-31.35!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x1efa0b3c5c5a5a5b%3A0x5c5a5a5a5a5a5a5a!2sPort%20Edward%2C%20South%20Africa!3m2!1d-31.0456!2d30.2249!4m5!1s0x1e5e7a8b0f5a0001%3A0x1234567890abcdef!2sPort%20St%20Johns%2C%20South%20Africa!3m2!1d-31.6258!2d29.5347!5e1!3m2!1sen!2sza"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Wild Coast Satellite Map - Port Edward to Port St Johns"
-                className="absolute inset-0"
-              />
+              <WildCoastMap />
             </div>
           </div>
         </div>
