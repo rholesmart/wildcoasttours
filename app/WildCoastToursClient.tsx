@@ -856,7 +856,7 @@ export default function WildCoastToursClient() {
           <div className="relative rounded-2xl overflow-hidden shadow-2xl fade-in">
             <div className="aspect-[16/9] md:aspect-[21/9] w-full">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d442089.5!2d29.7!3d-31.45!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1sen!2sza!4v1706000000000"
+                src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d442089.5!2d29.85!3d-31.35!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e2!4m5!1s0x1efa0b3c5c5a5a5b%3A0x5c5a5a5a5a5a5a5a!2sPort%20Edward%2C%20South%20Africa!3m2!1d-31.0456!2d30.2249!4m5!1s0x1e5e7a8b0f5a0001%3A0x1234567890abcdef!2sPort%20St%20Johns%2C%20South%20Africa!3m2!1d-31.6258!2d29.5347!5e1!3m2!1sen!2sza"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -866,12 +866,6 @@ export default function WildCoastToursClient() {
                 title="Wild Coast Satellite Map - Port Edward to Port St Johns"
                 className="absolute inset-0"
               />
-            </div>
-            
-            {/* Location Labels Overlay */}
-            <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg">
-              <p className="text-sm font-semibold text-[#1B5F8C]">Wild Coast Region</p>
-              <p className="text-xs text-[#1B5F8C]/70">Port Edward to Port St Johns</p>
             </div>
           </div>
         </div>
