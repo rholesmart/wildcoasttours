@@ -840,6 +840,147 @@ export default function WildCoastToursClient() {
         </div>
       </section>
 
+      {/* Interactive Map Section */}
+      <section className="py-16 bg-[#F4F4F4]">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-8 fade-in">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#1B5F8C] mb-3 font-ubuntu">
+              Explore the Wild Coast
+            </h2>
+            <p className="text-[#1B5F8C]/70 max-w-2xl mx-auto">
+              Discover the breathtaking landmarks, hiking trails, and hidden gems of Mpondoland from above
+            </p>
+          </div>
+          
+          {/* Map Container */}
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl fade-in">
+            <div className="aspect-[16/9] md:aspect-[21/9] w-full">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d220089.0851831!2d29.58!3d-31.55!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1e5e7a8b0f5a0001%3A0x1234567890abcdef!2sWild%20Coast%2C%20Eastern%20Cape%2C%20South%20Africa!5e1!3m2!1sen!2sza!4v1706000000000!5m2!1sen!2sza&maptype=satellite"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Wild Coast Satellite Map"
+                className="absolute inset-0"
+              />
+            </div>
+            
+            {/* Map Overlay with Landmarks */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 md:p-6">
+              <div className="flex flex-wrap gap-2 md:gap-3 justify-center">
+                <a
+                  href="https://www.google.com/maps/search/Hole+in+the+Wall+Wild+Coast/@-31.9667,29.1333,14z/data=!3m1!4b1!4m6!2m5!3m4!2s-31.9667,29.1333!4m1!1i14!5m1!1e4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-300 hover:scale-105"
+                  style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
+                >
+                  Hole in the Wall
+                </a>
+                <a
+                  href="https://www.google.com/maps/search/Waterfall+Bluff+Wild+Coast/@-31.5333,29.7833,14z/data=!3m1!4b1!4m6!2m5!3m4!2s-31.5333,29.7833!4m1!1i14!5m1!1e4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-300 hover:scale-105"
+                  style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
+                >
+                  Waterfall Bluff
+                </a>
+                <a
+                  href="https://www.google.com/maps/search/Cathedral+Rock+Wild+Coast/@-31.45,29.85,14z/data=!3m1!4b1!5m1!1e4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-300 hover:scale-105"
+                  style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
+                >
+                  Cathedral Rock
+                </a>
+                <a
+                  href="https://www.google.com/maps/search/Mkambati+Nature+Reserve/@-31.2833,29.95,12z/data=!3m1!4b1!5m1!1e4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-300 hover:scale-105"
+                  style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
+                >
+                  Mkambati Reserve
+                </a>
+                <a
+                  href="https://www.google.com/maps/search/Magwa+Falls+Wild+Coast/@-31.45,29.65,14z/data=!3m1!4b1!5m1!1e4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-300 hover:scale-105"
+                  style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
+                >
+                  Magwa Falls
+                </a>
+                <a
+                  href="https://www.google.com/maps/search/Xolobeni+Wild+Coast/@-31.4,29.75,13z/data=!3m1!4b1!5m1!1e4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-300 hover:scale-105"
+                  style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
+                >
+                  Xolobeni
+                </a>
+                <a
+                  href="https://www.google.com/maps/search/Port+St+Johns/@-31.6333,29.5333,13z/data=!3m1!4b1!5m1!1e4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-300 hover:scale-105"
+                  style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
+                >
+                  Port St Johns
+                </a>
+                <a
+                  href="https://www.google.com/maps/search/Mzamba+River+Mouth/@-31.0833,30.1667,14z/data=!3m1!4b1!5m1!1e4"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all duration-300 hover:scale-105"
+                  style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
+                >
+                  Mzamba River
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Hiking Trail Info */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 fade-in">
+            <div className="bg-white rounded-xl p-5 shadow-md hover:shadow-lg transition-shadow duration-300">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3" style={{ backgroundColor: `${ACCENT_COLOR}20` }}>
+                <svg className="w-5 h-5" style={{ color: ACCENT_COLOR }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-[#1B5F8C] mb-1">Coastal Trails</h3>
+              <p className="text-sm text-[#1B5F8C]/70">Over 280km of pristine coastline with dramatic cliffs and secluded beaches</p>
+            </div>
+            <div className="bg-white rounded-xl p-5 shadow-md hover:shadow-lg transition-shadow duration-300">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3" style={{ backgroundColor: `${ACCENT_COLOR}20` }}>
+                <svg className="w-5 h-5" style={{ color: ACCENT_COLOR }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-[#1B5F8C] mb-1">Waterfalls</h3>
+              <p className="text-sm text-[#1B5F8C]/70">Discover majestic waterfalls including Waterfall Bluff and Magwa Falls</p>
+            </div>
+            <div className="bg-white rounded-xl p-5 shadow-md hover:shadow-lg transition-shadow duration-300">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3" style={{ backgroundColor: `${ACCENT_COLOR}20` }}>
+                <svg className="w-5 h-5" style={{ color: ACCENT_COLOR }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-[#1B5F8C] mb-1">Mpondo Villages</h3>
+              <p className="text-sm text-[#1B5F8C]/70">Experience authentic homestays in traditional Mpondo communities</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="py-16 bg-[#1B5F8C] text-[#F4F4F4] relative">
         <div className="max-w-6xl mx-auto px-4">
