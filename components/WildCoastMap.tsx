@@ -4,24 +4,44 @@ import { useEffect, useRef } from "react"
 
 const ACCENT_COLOR = "#F7931A"
 
-// Coordinates following the Wild Coast coastline from Port Edward to Port St Johns
+// Coordinates following the Wild Coast coastline precisely from Port Edward to Port St Johns
 const coastlineCoordinates: [number, number][] = [
   [-31.0456, 30.2249], // Port Edward
+  [-31.0550, 30.2000], // South of Port Edward
+  [-31.0700, 30.1750], // Mzamba Beach
   [-31.0833, 30.1667], // Mzamba River Mouth
-  [-31.1200, 30.1200], // Mtentu River
-  [-31.1800, 30.0500], // Msikaba River
-  [-31.2500, 29.9800], // Mkambati Nature Reserve
-  [-31.2833, 29.9500], // Mkambati Falls
-  [-31.3200, 29.9000], // Mfihlelo
-  [-31.3600, 29.8500], // Lubanzi
-  [-31.4000, 29.8000], // Mbotyi
-  [-31.4200, 29.7800], // Cathedral Rock area
-  [-31.4500, 29.7500], // Manteku
-  [-31.4800, 29.7000], // Hluleka
-  [-31.5200, 29.6500], // Mdumbi
-  [-31.5500, 29.6000], // Coffee Bay area
-  [-31.5800, 29.5800], // Hole in the Wall area
-  [-31.6000, 29.5500], // Hlungwane
+  [-31.0950, 30.1450], // Coastline south
+  [-31.1100, 30.1200], // Mtentu area
+  [-31.1250, 30.0950], // Coastal point
+  [-31.1400, 30.0700], // Msikaba north
+  [-31.1600, 30.0450], // Msikaba River
+  [-31.1800, 30.0200], // South of Msikaba
+  [-31.2000, 29.9950], // Coastal stretch
+  [-31.2200, 29.9750], // Mkambati north
+  [-31.2400, 29.9600], // Mkambati beach
+  [-31.2600, 29.9450], // Mkambati Nature Reserve
+  [-31.2833, 29.9300], // Mkambati Falls area
+  [-31.3000, 29.9100], // South Mkambati
+  [-31.3200, 29.8900], // Mfihlelo coast
+  [-31.3400, 29.8700], // Coastal point
+  [-31.3600, 29.8500], // Lubanzi area
+  [-31.3800, 29.8300], // North of Mbotyi
+  [-31.4000, 29.8100], // Mbotyi
+  [-31.4150, 29.7900], // South Mbotyi
+  [-31.4300, 29.7700], // Cathedral Rock
+  [-31.4450, 29.7500], // Manteku
+  [-31.4600, 29.7300], // Coastal stretch
+  [-31.4800, 29.7100], // Hluleka north
+  [-31.5000, 29.6850], // Hluleka
+  [-31.5150, 29.6650], // South Hluleka
+  [-31.5300, 29.6450], // Mdumbi north
+  [-31.5450, 29.6250], // Mdumbi
+  [-31.5550, 29.6050], // Coffee Bay north
+  [-31.5700, 29.5900], // Coffee Bay
+  [-31.5850, 29.5750], // Hole in the Wall
+  [-31.6000, 29.5600], // South of Hole in the Wall
+  [-31.6100, 29.5500], // Hlungwane
+  [-31.6200, 29.5420], // Approaching Port St Johns
   [-31.6258, 29.5347], // Port St Johns
 ]
 
@@ -115,22 +135,6 @@ export default function WildCoastMap() {
         .addTo(map)
         .bindPopup("<strong>Port St Johns</strong><br/>End of the Wild Coast Trail")
 
-      // Add key landmark markers along the trail
-      const landmarks = [
-        { coords: [-31.0833, 30.1667] as [number, number], name: "Mzamba River", desc: "Fossil-rich beaches" },
-        { coords: [-31.2833, 29.9500] as [number, number], name: "Mkambati Nature Reserve", desc: "Pristine wilderness & waterfalls" },
-        { coords: [-31.4000, 29.8000] as [number, number], name: "Mbotyi", desc: "Remote coastal village" },
-        { coords: [-31.5200, 29.6500] as [number, number], name: "Mdumbi", desc: "Surfing & community tourism" },
-        { coords: [-31.5800, 29.5800] as [number, number], name: "Hole in the Wall", desc: "Iconic rock formation" },
-      ]
-
-      landmarks.forEach((landmark) => {
-        L.default
-          .marker(landmark.coords, { icon: createIcon(ACCENT_COLOR) })
-          .addTo(map)
-          .bindPopup(`<strong>${landmark.name}</strong><br/>${landmark.desc}`)
-      })
-
       // Fit bounds to show the entire trail
       map.fitBounds(coastlinePath.getBounds(), { padding: [30, 30] })
     }
@@ -148,23 +152,6 @@ export default function WildCoastMap() {
   return (
     <div className="relative w-full h-full">
       <div ref={mapRef} className="absolute inset-0 z-0" />
-      
-      {/* Legend */}
-      <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg z-[1000]">
-        <p className="text-xs font-semibold text-[#1B5F8C] mb-2">Wild Coast Trail</p>
-        <div className="flex items-center gap-2 text-xs text-[#1B5F8C]/80 mb-1">
-          <span className="w-3 h-3 rounded-full bg-[#22c55e]"></span>
-          <span>Port Edward (Start)</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-[#1B5F8C]/80 mb-1">
-          <span className="w-3 h-3 rounded-full bg-[#ef4444]"></span>
-          <span>Port St Johns (End)</span>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-[#1B5F8C]/80">
-          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: ACCENT_COLOR }}></span>
-          <span>Key Landmarks</span>
-        </div>
-      </div>
     </div>
   )
 }
