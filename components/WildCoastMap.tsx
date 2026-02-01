@@ -74,12 +74,14 @@ const coastlineCoordinates: [number, number][] = [
 export default function WildCoastMap() {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
+  const isInitializedRef = useRef(false)
 
   useEffect(() => {
     if (typeof window === "undefined" || !mapRef.current) return
     
-    // If map already exists, don't reinitialize
-    if (mapInstanceRef.current) return
+    // Prevent double initialization
+    if (isInitializedRef.current) return
+    isInitializedRef.current = true
 
     // Dynamically load Leaflet
     const loadLeaflet = async () => {
@@ -95,8 +97,17 @@ export default function WildCoastMap() {
       // Load Leaflet JS
       const L = await import("leaflet")
 
+      // Check if container already has a map (e.g., from HMR)
+      const container = mapRef.current
+      if (!container) return
+      
+      // Clear any existing map instance on the container
+      if ((container as any)._leaflet_id) {
+        (container as any)._leaflet_id = null
+      }
+
       // Initialize map centered on Wild Coast
-      const map = L.default.map(mapRef.current!, {
+      const map = L.default.map(container, {
         center: [-31.35, 29.85],
         zoom: 9,
         scrollWheelZoom: false,
