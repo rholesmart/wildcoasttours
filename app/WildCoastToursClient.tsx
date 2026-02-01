@@ -11,6 +11,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Slider } from "@/components/ui/slider"
 import { Mail, Phone, ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react"
 import { sendBookingEmail } from "@/actions/send-email"
+import dynamic from "next/dynamic"
+
+const WildCoastMap = dynamic(() => import("@/components/WildCoastMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full bg-[#1B5F8C]/10 animate-pulse flex items-center justify-center">
+      <p className="text-[#1B5F8C]/50">Loading map...</p>
+    </div>
+  ),
+})
 
 const ACCENT_COLOR = "#F7931A"
 
@@ -837,6 +847,27 @@ export default function WildCoastToursClient() {
               </Button>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Interactive Map Section */}
+      <section className="py-16 bg-[#F4F4F4]">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-8 fade-in">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#1B5F8C] mb-3 font-ubuntu">
+              Explore the Wild Coast
+            </h2>
+            <p className="text-[#1B5F8C]/70 max-w-2xl mx-auto">
+              Discover the breathtaking landmarks, hiking trails, and hidden gems of Mpondoland with Sinegugu and his team
+            </p>
+          </div>
+          
+          {/* Map Container */}
+          <div className="relative rounded-2xl overflow-hidden shadow-2xl fade-in">
+            <div className="aspect-[16/9] md:aspect-[21/9] w-full">
+              <WildCoastMap />
+            </div>
+          </div>
         </div>
       </section>
 
