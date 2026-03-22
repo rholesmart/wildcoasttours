@@ -493,7 +493,7 @@ export default function WildCoastToursClient() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-24 px-4 max-w-6xl mx-auto">
+      <section id="about" className="relative py-24 px-4 max-w-6xl mx-auto mb-[-80px] z-10">
         <div className="flex flex-col md:flex-row items-center gap-16">
           <div className="md:w-1/3 flex justify-center fade-in">
             <div
@@ -501,6 +501,7 @@ export default function WildCoastToursClient() {
               className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer"
               onMouseEnter={() => setIsProfileHovered(true)}
               onMouseLeave={() => setIsProfileHovered(false)}
+              style={{ opacity: 0.92 }}
             >
               <div
                 className="relative w-full h-full overflow-hidden rounded-full shadow-xl border-4 transition-all duration-700 ease-out"
@@ -555,16 +556,15 @@ export default function WildCoastToursClient() {
             </div>
           </div>
           <div className="md:w-2/3 fade-in">
-            <div className="bg-[#1B5F8C] text-[#F4F4F4] px-3 py-1 rounded-full text-sm inline-block mb-6">
-              Our Story
+            <div className="bg-white/95 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+              <h2 className="text-xl md:text-2xl font-bold mb-4 font-ubuntu text-[#1B5F8C]">Discover Mpondoland's Beauty & Culture</h2>
+              <p className="text-base text-[#1B5F8C]/80">
+                Wild Coast Tours offers authentic eco-tourism experiences in the breathtaking region of Mpondoland. Our
+                tours are designed to showcase the stunning landscapes, rich biodiversity, and vibrant Mpondo culture, all
+                while supporting sustainable community development and environmental conservation efforts led by local
+                activists like Sinegugu Zukulu.
+              </p>
             </div>
-            <h2 className="text-xl md:text-2xl font-bold mb-6 font-ubuntu">Discover Mpondoland's Beauty & Culture</h2>
-            <p className="text-base mb-8">
-              Wild Coast Tours offers authentic eco-tourism experiences in the breathtaking region of Mpondoland. Our
-              tours are designed to showcase the stunning landscapes, rich biodiversity, and vibrant Mpondo culture, all
-              while supporting sustainable community development and environmental conservation efforts led by local
-              activists like Sinegugu Zukulu.
-            </p>
           </div>
         </div>
       </section>
