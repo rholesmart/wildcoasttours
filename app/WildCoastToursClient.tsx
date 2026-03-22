@@ -493,14 +493,17 @@ export default function WildCoastToursClient() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="relative py-24 px-4 max-w-6xl mx-auto mb-[-200px] z-10">
+      <section id="about" className="relative py-24 px-4 max-w-6xl mx-auto mb-0 z-10">
         <div className="flex flex-col md:flex-row items-center gap-16">
-          <div className="md:w-1/3 flex justify-center fade-in md:-mt-96">
+          <div className="md:w-1/3 flex justify-center fade-in absolute -bottom-96 left-0 md:relative md:bottom-auto md:left-auto">
             <div
               ref={profileImageRef}
-              className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer"
+              className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer overflow-hidden"
               onMouseEnter={() => setIsProfileHovered(true)}
               onMouseLeave={() => setIsProfileHovered(false)}
+              style={{
+                clipPath: "polygon(0 0, 100% 0, 100% 50%, 0 50%)",
+              }}
             >
               <div
                 className="relative w-full h-full overflow-hidden rounded-full shadow-xl border-4 transition-all duration-700 ease-out"
