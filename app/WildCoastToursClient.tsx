@@ -493,9 +493,9 @@ export default function WildCoastToursClient() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="relative py-24 px-4 max-w-6xl mx-auto mb-[-80px] z-10">
+      <section id="about" className="relative py-24 px-4 max-w-6xl mx-auto mb-[-200px] z-10">
         <div className="flex flex-col md:flex-row items-center gap-16">
-          <div className="md:w-1/3 flex justify-center fade-in md:-mt-48">
+          <div className="md:w-1/3 flex justify-center fade-in md:-mt-96">
             <div
               ref={profileImageRef}
               className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer"
