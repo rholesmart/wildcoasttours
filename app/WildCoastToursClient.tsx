@@ -12,6 +12,7 @@ import { Slider } from "@/components/ui/slider"
 import { Mail, Phone, ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react"
 import { sendBookingEmail } from "@/actions/send-email"
 import dynamic from "next/dynamic"
+import { MpondoPatternTop, MpondoPatternBottom } from "@/components/MpondoPattern"
 
 const WildCoastMap = dynamic(() => import("@/components/WildCoastMap"), {
   ssr: false,
@@ -492,160 +493,178 @@ export default function WildCoastToursClient() {
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="relative py-24 px-4 max-w-6xl mx-auto mb-[-80px] z-10">
-        <div className="flex flex-col md:flex-row items-center gap-16">
-          <div className="md:w-1/3 flex justify-center fade-in md:-mt-48">
-            <div
-              ref={profileImageRef}
-              className="relative w-64 h-64 md:w-80 md:h-80 cursor-pointer"
-              onMouseEnter={() => setIsProfileHovered(true)}
-              onMouseLeave={() => setIsProfileHovered(false)}
-            >
+      {/* About Section - Ribbon Style */}
+      <section id="about" className="relative z-10">
+        <div className="flex flex-col md:flex-row items-stretch">
+          {/* Profile Image - Overlapping */}
+          <div className="md:w-1/4 flex justify-center md:justify-end relative z-20 md:-mr-16">
+            <div className="md:-mt-32 -mb-16 md:mb-0">
               <div
-                className="relative w-full h-full overflow-hidden rounded-full shadow-xl border-4 transition-all duration-700 ease-out"
-                style={{
-                  transform: `scale(${borderScale})`,
-                  boxShadow: `0 0 ${shadowIntensity}px rgba(247,147,26,${shadowOpacity})`,
-                  borderColor: dynamicBorderColor,
-                }}
+                ref={profileImageRef}
+                className="relative w-48 h-48 md:w-64 md:h-64 cursor-pointer"
+                onMouseEnter={() => setIsProfileHovered(true)}
+                onMouseLeave={() => setIsProfileHovered(false)}
               >
-                <Image
-                  src="/images/sinegugu-portrait.png"
-                  alt="Sinegugu Zukulu - Guide and Environmental Activist for Wild Coast Tours"
-                  fill
-                  className="object-cover transition-all duration-1000 ease-out"
+                <div
+                  className="relative w-full h-full overflow-hidden rounded-full shadow-2xl border-4 transition-all duration-700 ease-out"
                   style={{
-                    transform: `scale(${imageScale}) rotate(${imageRotate}deg)`,
-                    filter: `contrast(${imageContrast})`,
+                    transform: `scale(${borderScale})`,
+                    boxShadow: `0 0 ${shadowIntensity}px rgba(247,147,26,${shadowOpacity})`,
+                    borderColor: dynamicBorderColor,
                   }}
-                  priority
-                  sizes="(max-width: 768px) 256px, 320px"
-                />
-                <div
-                  className="absolute inset-0 bg-gradient-radial from-transparent via-black/30 to-black/70 rounded-full transition-opacity duration-500"
-                  style={{ opacity: overlayOpacity }}
-                />
-                <div
-                  className="absolute inset-0 rounded-full transition-opacity duration-500 shadow-[inset_0_0_50px_rgba(247,147,26,0.3)]"
-                  style={{ opacity: overlayOpacity }}
-                />
-              </div>
-              <div
-                className="absolute inset-0 pointer-events-none transition-opacity duration-700"
-                style={{ opacity: overlayOpacity }}
-              >
-                <div
-                  className="absolute top-4 left-4 w-2 h-2 rounded-full animate-bounce"
-                  style={{ backgroundColor: `${ACCENT_COLOR}99`, animationDelay: "0.1s" }}
-                />
-                <div
-                  className="absolute top-8 right-6 w-1.5 h-1.5 bg-white/40 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.3s" }}
-                />
-                <div
-                  className="absolute bottom-6 left-8 w-1 h-1 rounded-full animate-bounce"
-                  style={{ backgroundColor: `${ACCENT_COLOR}cc`, animationDelay: "0.5s" }}
-                />
-                <div
-                  className="absolute bottom-4 right-4 w-1.5 h-1.5 bg-white/60 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.7s" }}
-                />
+                >
+                  <Image
+                    src="/images/sinegugu-portrait.png"
+                    alt="Sinegugu Zukulu - Guide and Environmental Activist for Wild Coast Tours"
+                    fill
+                    className="object-cover transition-all duration-1000 ease-out"
+                    style={{
+                      transform: `scale(${imageScale}) rotate(${imageRotate}deg)`,
+                      filter: `contrast(${imageContrast})`,
+                    }}
+                    priority
+                    sizes="(max-width: 768px) 192px, 256px"
+                  />
+                  <div
+                    className="absolute inset-0 bg-gradient-radial from-transparent via-black/30 to-black/70 rounded-full transition-opacity duration-500"
+                    style={{ opacity: overlayOpacity }}
+                  />
+                </div>
               </div>
             </div>
           </div>
-          <div className="md:w-2/3 fade-in">
-            <h2 className="text-xl md:text-2xl font-bold mb-4 font-ubuntu text-[#1B5F8C]">Discover Mpondoland's Beauty & Culture</h2>
-            <p className="text-base text-[#1B5F8C]/80">
-              Wild Coast Tours offers authentic eco-tourism experiences in the breathtaking region of Mpondoland. Our
-              tours are designed to showcase the stunning landscapes, rich biodiversity, and vibrant Mpondo culture, all
-              while supporting sustainable community development and environmental conservation efforts led by local
-              activists like Sinegugu Zukulu.
-            </p>
+          
+          {/* Ribbon Text Block */}
+          <div className="md:w-3/4 relative">
+            <MpondoPatternTop />
+            <div className="bg-[#1B5F8C] py-6 md:py-8 px-6 md:px-12 md:pl-20">
+              <h2 className="text-lg md:text-xl font-bold mb-2 font-ubuntu text-white">
+                Discover Mpondoland's Beauty & Culture
+              </h2>
+              <p className="text-sm md:text-base text-white/90 leading-relaxed max-w-3xl">
+                Wild Coast Tours offers authentic eco-tourism experiences in the breathtaking region of Mpondoland. Our
+                tours are designed to showcase the stunning landscapes, rich biodiversity, and vibrant Mpondo culture, all
+                while supporting sustainable community development and environmental conservation efforts led by local
+                activists like Sinegugu Zukulu.
+              </p>
+            </div>
+            <MpondoPatternBottom />
           </div>
         </div>
       </section>
 
-      <section id="november-2025" className="py-16 bg-[#1B5F8C]">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 font-ubuntu text-white">Our Tours</h2>
-          <h3 className="text-xl md:text-2xl font-bold text-center mb-10 font-ubuntu" style={{ color: ACCENT_COLOR }}>
-            November 2025
-          </h3>
-
-          {/* Fullscreen Carousel */}
-          <div
-            className="relative w-full h-[60vh] md:h-[70vh] rounded-lg overflow-hidden"
-            onTouchStart={handleNov2025TouchStart}
-            onTouchEnd={handleNov2025TouchEnd}
+      {/* Our Tours - Fullscreen Cinematic Gallery */}
+      <section id="november-2025" className="relative min-h-screen bg-black">
+        {/* Parallax Background Image */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div 
+            className="absolute inset-0 scale-110 transition-transform duration-1000"
+            style={{
+              transform: `scale(1.1) translateY(${typeof window !== 'undefined' ? window.scrollY * 0.1 : 0}px)`,
+            }}
           >
-            <div className="relative w-full h-full">
-              <Image
-                src={november2025Images[nov2025Index].src || "/placeholder.svg"}
-                alt={november2025Images[nov2025Index].alt}
-                fill
-                className="object-cover transition-all duration-500"
-                sizes="100vw"
-                priority={nov2025Index < 6}
-                loading={nov2025Index < 6 ? undefined : "lazy"}
-              />
+            <Image
+              src={november2025Images[nov2025Index].src || "/placeholder.svg"}
+              alt={november2025Images[nov2025Index].alt}
+              fill
+              className="object-cover transition-all duration-700 ease-out"
+              sizes="100vw"
+              priority={nov2025Index < 6}
+              loading={nov2025Index < 6 ? undefined : "lazy"}
+            />
+          </div>
+          {/* Cinematic gradient overlays */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+        </div>
+
+        {/* Content Overlay */}
+        <div 
+          className="relative z-10 min-h-screen flex flex-col"
+          onTouchStart={handleNov2025TouchStart}
+          onTouchEnd={handleNov2025TouchEnd}
+        >
+          {/* Header */}
+          <div className="pt-12 md:pt-16 px-4 text-center">
+            <h2 className="text-3xl md:text-5xl font-bold font-ubuntu text-white tracking-wide drop-shadow-lg">
+              Our Tours
+            </h2>
+            <h3 
+              className="text-xl md:text-2xl font-bold mt-2 font-ubuntu tracking-widest drop-shadow-md"
+              style={{ color: ACCENT_COLOR }}
+            >
+              November 2025
+            </h3>
+          </div>
+
+          {/* Main Image Area */}
+          <div className="flex-1 flex items-center justify-center px-4 py-8">
+            <div className="relative w-full max-w-6xl aspect-[16/10] md:aspect-[21/9]">
+              {/* Navigation Buttons */}
+              <button
+                onClick={prevNov2025}
+                className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 hover:scale-110 transition-all duration-300 cursor-pointer z-20 border border-white/20"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="w-8 h-8 md:w-10 md:h-10" />
+              </button>
+              <button
+                onClick={nextNov2025}
+                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 hover:scale-110 transition-all duration-300 cursor-pointer z-20 border border-white/20"
+                aria-label="Next image"
+              >
+                <ChevronRight className="w-8 h-8 md:w-10 md:h-10" />
+              </button>
+
+              {/* Zoom Button */}
               <button
                 onClick={() => setZoomedImage(november2025Images[nov2025Index].src)}
-                className="absolute top-4 right-4 w-12 h-12 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer z-10"
+                className="absolute top-4 right-4 w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 hover:scale-110 transition-all duration-300 cursor-pointer z-20 border border-white/20"
                 aria-label="Zoom image"
               >
                 <ZoomIn className="w-6 h-6" />
               </button>
 
-              <button
-                onClick={prevNov2025}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer z-10"
-                aria-label="Previous image"
-              >
-                <ChevronLeft className="w-8 h-8" />
-              </button>
-              <button
-                onClick={nextNov2025}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-colors cursor-pointer z-10"
-                aria-label="Next image"
-              >
-                <ChevronRight className="w-8 h-8" />
-              </button>
-
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/50 text-white text-sm">
-                {nov2025Index + 1} / {november2025Images.length}
+              {/* Image Counter */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full bg-black/40 backdrop-blur-sm text-white text-sm md:text-base font-medium border border-white/20 z-20">
+                <span style={{ color: ACCENT_COLOR }}>{nov2025Index + 1}</span>
+                <span className="mx-2 text-white/60">/</span>
+                <span>{november2025Images.length}</span>
               </div>
             </div>
           </div>
 
           {/* Thumbnail Strip */}
-          <div ref={thumbnailStripRef} className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
-            {november2025Images.map((img, idx) => (
-              <button
-                key={idx}
-                ref={(el) => {
-                  thumbnailRefs.current[idx] = el
-                }}
-                onClick={() => setNov2025Index(idx)}
-                className={`flex-shrink-0 relative w-20 h-14 md:w-24 md:h-16 rounded-md overflow-hidden transition-all duration-300 cursor-pointer ${
-                  idx === nov2025Index ? "scale-105 opacity-100" : "opacity-60 hover:opacity-100"
-                }`}
-                style={{
-                  outline: idx === nov2025Index ? `2px solid ${ACCENT_COLOR}` : "none",
-                  outlineOffset: "2px",
-                }}
-                aria-label={`View image ${idx + 1}`}
-              >
-                <Image
-                  src={img.src || "/placeholder.svg"}
-                  alt={img.alt}
-                  fill
-                  className="object-cover"
-                  sizes="96px"
-                  loading={idx < 6 ? "eager" : "lazy"}
-                />
-              </button>
-            ))}
+          <div className="pb-6 md:pb-8">
+            <div ref={thumbnailStripRef} className="flex gap-2 md:gap-3 px-4 overflow-x-auto pb-2 scrollbar-hide scroll-smooth justify-start md:justify-center">
+              {november2025Images.map((img, idx) => (
+                <button
+                  key={idx}
+                  ref={(el) => {
+                    thumbnailRefs.current[idx] = el
+                  }}
+                  onClick={() => setNov2025Index(idx)}
+                  className={`flex-shrink-0 relative w-16 h-12 md:w-24 md:h-16 rounded-lg overflow-hidden transition-all duration-300 cursor-pointer border-2 ${
+                    idx === nov2025Index 
+                      ? "scale-110 opacity-100 shadow-lg shadow-orange-500/30" 
+                      : "opacity-50 hover:opacity-80 border-transparent"
+                  }`}
+                  style={{
+                    borderColor: idx === nov2025Index ? ACCENT_COLOR : "transparent",
+                  }}
+                  aria-label={`View image ${idx + 1}`}
+                >
+                  <Image
+                    src={img.src || "/placeholder.svg"}
+                    alt={img.alt}
+                    fill
+                    className="object-cover"
+                    sizes="96px"
+                    loading={idx < 6 ? "eager" : "lazy"}
+                  />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
