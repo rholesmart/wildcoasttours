@@ -13,6 +13,7 @@ import { Mail, Phone, ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react"
 import { sendBookingEmail } from "@/actions/send-email"
 import dynamic from "next/dynamic"
 import { MpondoPatternTop, MpondoPatternBottom } from "@/components/MpondoPattern"
+import Preloader from "@/components/Preloader"
 
 const WildCoastMap = dynamic(() => import("@/components/WildCoastMap"), {
   ssr: false,
@@ -178,6 +179,8 @@ const timelineData = [
 ]
 
 export default function WildCoastToursClient() {
+  const [showPreloader, setShowPreloader] = useState(true)
+  const [isScrollLocked, setIsScrollLocked] = useState(true)
   const [currentHeroImage, setCurrentHeroImage] = useState(0)
   const [currentTimelineIndex, setCurrentTimelineIndex] = useState(0)
   const [selectedTimelineItem, setSelectedTimelineItem] = useState<(typeof timelineData)[0] | null>(null)
@@ -214,6 +217,22 @@ export default function WildCoastToursClient() {
   const [dynamicBorderColor, setDynamicBorderColor] = useState("#1B5F8C")
 
   const currentTimelineEvent = timelineData[currentTimelineIndex]
+
+  // Scroll lock during preloader
+  useEffect(() => {
+    if (isScrollLocked) {
+      document.body.classList.add("scroll-locked")
+    } else {
+      document.body.classList.remove("scroll-locked")
+    }
+    return () => document.body.classList.remove("scroll-locked")
+  }, [isScrollLocked])
+
+  // Handle preloader complete
+  const handlePreloaderComplete = () => {
+    setShowPreloader(false)
+    setIsScrollLocked(false)
+  }
 
   // Hero slideshow
   useEffect(() => {
@@ -350,7 +369,9 @@ export default function WildCoastToursClient() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu overflow-hidden">
+    <>
+      {showPreloader && <Preloader onComplete={handlePreloaderComplete} />}
+      <main className={`min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu overflow-hidden ${isScrollLocked ? 'h-screen overflow-hidden' : ''}`}>
       {/* Hero Section */}
       <section className="relative h-screen w-full">
         {heroImages.map((image, index) => (
@@ -373,22 +394,20 @@ export default function WildCoastToursClient() {
 
         <div className="absolute inset-0 bg-black/40 z-10" />
 
-        <div className="absolute bottom-6 right-6 z-30 flex flex-col gap-3">
+        <div className="absolute bottom-8 right-8 z-30 flex flex-col gap-4">
           <a
             href="tel:+27724285109"
-            className="w-10 h-10 rounded-full flex items-center justify-center text-[#1B5F8C] hover:bg-white transition-colors duration-300 shadow-lg"
-            style={{ backgroundColor: ACCENT_COLOR }}
+            className="w-14 h-14 rounded-full flex items-center justify-center text-white bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 transition-all duration-300"
             aria-label="Call us"
           >
-            <Phone className="w-5 h-5" />
+            <Phone className="w-7 h-7" />
           </a>
           <a
             href="mailto:sinegugu@wildcoasttours.co.za"
-            className="w-10 h-10 rounded-full flex items-center justify-center text-[#1B5F8C] hover:bg-white transition-colors duration-300 shadow-lg"
-            style={{ backgroundColor: ACCENT_COLOR }}
+            className="w-14 h-14 rounded-full flex items-center justify-center text-white bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 transition-all duration-300"
             aria-label="Email us"
           >
-            <Mail className="w-5 h-5" />
+            <Mail className="w-7 h-7" />
           </a>
         </div>
 
@@ -998,5 +1017,6 @@ export default function WildCoastToursClient() {
         </div>
       </footer>
     </main>
+    </>
   )
 }
