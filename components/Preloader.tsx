@@ -1,123 +1,102 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
 
 interface PreloaderProps {
   onComplete: () => void
 }
 
 export default function Preloader({ onComplete }: PreloaderProps) {
-  const [phase, setPhase] = useState<"loading" | "tagline" | "cta" | "done">("loading")
-  const [isLoaded, setIsLoaded] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [showTagline, setShowTagline] = useState(false)
   const [isFading, setIsFading] = useState(false)
 
+  // Progress bar animation - completes in ~1.2s
   useEffect(() => {
-    // Simulate minimum loading time and wait for actual load
-    const minLoadTime = setTimeout(() => {
-      setIsLoaded(true)
-    }, 2000)
+    let raf = 0
+    const start = performance.now()
+    const duration = 1200
 
-    return () => clearTimeout(minLoadTime)
-  }, [])
+    const tick = (now: number) => {
+      const elapsed = now - start
+      const pct = Math.min(100, (elapsed / duration) * 100)
+      setProgress(pct)
+      if (pct < 100) {
+        raf = requestAnimationFrame(tick)
+      } else {
+        // Reveal tagline once bar is full
+        setShowTagline(true)
+        // Then fade out the curtain so the real hero takes over
+        setTimeout(() => setIsFading(true), 900)
+        setTimeout(() => onComplete(), 1700)
+      }
+    }
 
-  useEffect(() => {
-    if (!isLoaded) return
-
-    // Phase 1: Show tagline for 6 seconds
-    setPhase("tagline")
-    
-    const taglineTimer = setTimeout(() => {
-      setIsFading(true)
-      setTimeout(() => {
-        setPhase("cta")
-        setIsFading(false)
-      }, 500)
-    }, 6000)
-
-    return () => clearTimeout(taglineTimer)
-  }, [isLoaded])
-
-  useEffect(() => {
-    if (phase !== "cta") return
-
-    // Show CTA for 2 seconds then complete
-    const ctaTimer = setTimeout(() => {
-      setIsFading(true)
-      setTimeout(() => {
-        setPhase("done")
-        onComplete()
-      }, 800)
-    }, 2000)
-
-    return () => clearTimeout(ctaTimer)
-  }, [phase, onComplete])
-
-  if (phase === "done") return null
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [onComplete])
 
   return (
-    <div 
-      className={`fixed inset-0 z-[9999] bg-black flex flex-col items-center justify-center transition-opacity duration-800 ${
-        isFading ? "opacity-0" : "opacity-100"
+    <div
+      className={`fixed inset-0 z-[9999] bg-black flex items-center justify-center transition-opacity duration-700 ease-out ${
+        isFading ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
+      aria-hidden={isFading}
     >
-      {/* Hiker Icon */}
-      <div className="relative w-24 h-24 md:w-32 md:h-32 mb-8">
-        <Image
-          src="/images/hiker-icon.png"
-          alt="Wild Coast Tours Hiker"
-          fill
-          className="object-contain invert"
-          priority
-        />
-      </div>
-
-      {/* Title with animated dots during loading */}
-      <div className="text-center">
-        <h1 className="text-2xl md:text-4xl font-bold text-white font-ubuntu tracking-wide">
-          Wild Coast Tours
-          {phase === "loading" && (
-            <span className="inline-block w-12 text-left">
-              <span className="animate-pulse">...</span>
+      {/* Centered content - matches hero section position */}
+      <div className="text-center text-white px-4 w-full max-w-2xl">
+        <h1 className="text-3xl md:text-5xl font-bold font-ubuntu inline-flex items-baseline justify-center">
+          <span>Wild Coast Tours</span>
+          {!showTagline && (
+            <span className="ml-1 inline-block w-8 text-left tracking-widest text-[#F7931A]">
+              <span className="dot dot-1">.</span>
+              <span className="dot dot-2">.</span>
+              <span className="dot dot-3">.</span>
             </span>
           )}
         </h1>
 
-        {/* Tagline - appears after loading */}
-        {(phase === "tagline" || (phase === "loading" && isLoaded)) && (
-          <p 
-            className={`mt-4 text-base md:text-xl text-white/90 transition-opacity duration-500 ${
-              phase === "tagline" ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            Authentic Eco-Tourism Experiences in Mpondoland
-          </p>
-        )}
+        {/* Progress bar directly under title */}
+        <div className="mt-4 mx-auto w-48 md:w-64 h-1 bg-white/15 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full transition-[width] duration-100 ease-linear"
+            style={{ width: `${progress}%`, backgroundColor: "#F7931A" }}
+          />
+        </div>
 
-        {/* CTA - appears after tagline fades */}
-        {phase === "cta" && (
-          <div className="mt-6 animate-fade-in">
-            <span 
-              className="inline-block px-8 py-3 rounded-full font-semibold text-lg"
-              style={{ backgroundColor: "#F7931A", color: "#1B5F8C" }}
-            >
-              Book Your Adventure
-            </span>
-          </div>
-        )}
+        {/* Tagline - same position as hero tagline */}
+        <p
+          className={`mt-6 text-lg md:text-xl text-white/90 transition-opacity duration-500 ${
+            showTagline ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          Authentic Eco-Tourism Experiences in Mpondoland
+        </p>
       </div>
 
-      {/* Loading indicator */}
-      {phase === "loading" && (
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
-          <div className="w-48 h-1 bg-white/20 rounded-full overflow-hidden">
-            <div 
-              className="h-full rounded-full animate-loading-bar"
-              style={{ backgroundColor: "#F7931A" }}
-            />
-          </div>
-        </div>
-      )}
+      <style jsx>{`
+        .dot {
+          opacity: 0;
+          animation: dot-pulse 1.2s infinite;
+        }
+        .dot-1 {
+          animation-delay: 0s;
+        }
+        .dot-2 {
+          animation-delay: 0.2s;
+        }
+        .dot-3 {
+          animation-delay: 0.4s;
+        }
+        @keyframes dot-pulse {
+          0%, 60%, 100% {
+            opacity: 0;
+          }
+          30% {
+            opacity: 1;
+          }
+        }
+      `}</style>
     </div>
   )
 }

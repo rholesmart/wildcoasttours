@@ -12,7 +12,6 @@ import { Slider } from "@/components/ui/slider"
 import { Mail, Phone, ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react"
 import { sendBookingEmail } from "@/actions/send-email"
 import dynamic from "next/dynamic"
-import { MpondoPatternTop, MpondoPatternBottom } from "@/components/MpondoPattern"
 import Preloader from "@/components/Preloader"
 
 const WildCoastMap = dynamic(() => import("@/components/WildCoastMap"), {
@@ -387,6 +386,7 @@ export default function WildCoastToursClient() {
               fill
               className="object-cover"
               priority={index === 0}
+              loading={index === 0 ? undefined : "lazy"}
               sizes="100vw"
             />
           </div>
@@ -512,15 +512,15 @@ export default function WildCoastToursClient() {
         </div>
       </section>
 
-      {/* About Section - Ribbon Style */}
-      <section id="about" className="relative z-10">
-        <div className="flex flex-col md:flex-row items-stretch">
+      {/* About Section - Solid Ribbon */}
+      <section id="about" className="relative z-10 bg-[#1B5F8C]">
+        <div className="flex flex-col md:flex-row items-center md:items-stretch max-w-7xl mx-auto">
           {/* Profile Image - Overlapping */}
           <div className="md:w-1/4 flex justify-center md:justify-end relative z-20 md:-mr-16">
-            <div className="md:-mt-32 -mb-16 md:mb-0">
+            <div className="md:-mt-20 -mt-12 -mb-8 md:mb-0">
               <div
                 ref={profileImageRef}
-                className="relative w-48 h-48 md:w-64 md:h-64 cursor-pointer"
+                className="relative w-44 h-44 md:w-60 md:h-60 cursor-pointer"
                 onMouseEnter={() => setIsProfileHovered(true)}
                 onMouseLeave={() => setIsProfileHovered(false)}
               >
@@ -541,8 +541,8 @@ export default function WildCoastToursClient() {
                       transform: `scale(${imageScale}) rotate(${imageRotate}deg)`,
                       filter: `contrast(${imageContrast})`,
                     }}
-                    priority
-                    sizes="(max-width: 768px) 192px, 256px"
+                    loading="lazy"
+                    sizes="(max-width: 768px) 176px, 240px"
                   />
                   <div
                     className="absolute inset-0 bg-gradient-radial from-transparent via-black/30 to-black/70 rounded-full transition-opacity duration-500"
@@ -552,22 +552,18 @@ export default function WildCoastToursClient() {
               </div>
             </div>
           </div>
-          
-          {/* Ribbon Text Block */}
-          <div className="md:w-3/4 relative">
-            <MpondoPatternTop />
-            <div className="bg-[#1B5F8C] py-6 md:py-8 px-6 md:px-12 md:pl-20">
-              <h2 className="text-lg md:text-xl font-bold mb-2 font-ubuntu text-white">
-                Discover Mpondoland's Beauty & Culture
-              </h2>
-              <p className="text-sm md:text-base text-white/90 leading-relaxed max-w-3xl">
-                Wild Coast Tours offers authentic eco-tourism experiences in the breathtaking region of Mpondoland. Our
-                tours are designed to showcase the stunning landscapes, rich biodiversity, and vibrant Mpondo culture, all
-                while supporting sustainable community development and environmental conservation efforts led by local
-                activists like Sinegugu Zukulu.
-              </p>
-            </div>
-            <MpondoPatternBottom />
+
+          {/* Solid Text Block */}
+          <div className="md:w-3/4 py-8 md:py-10 px-6 md:px-12 md:pl-20">
+            <h2 className="text-lg md:text-xl font-bold mb-2 font-ubuntu text-white">
+              Discover Mpondoland's Beauty & Culture
+            </h2>
+            <p className="text-sm md:text-base text-white/90 leading-relaxed max-w-3xl">
+              Wild Coast Tours offers authentic eco-tourism experiences in the breathtaking region of Mpondoland. Our
+              tours are designed to showcase the stunning landscapes, rich biodiversity, and vibrant Mpondo culture, all
+              while supporting sustainable community development and environmental conservation efforts led by local
+              activists like Sinegugu Zukulu.
+            </p>
           </div>
         </div>
       </section>
@@ -588,8 +584,7 @@ export default function WildCoastToursClient() {
               fill
               className="object-cover transition-all duration-700 ease-out"
               sizes="100vw"
-              priority={nov2025Index < 6}
-              loading={nov2025Index < 6 ? undefined : "lazy"}
+              loading="lazy"
             />
           </div>
           {/* Cinematic gradient overlays */}
@@ -679,7 +674,7 @@ export default function WildCoastToursClient() {
                     fill
                     className="object-cover"
                     sizes="96px"
-                    loading={idx < 6 ? "eager" : "lazy"}
+                    loading="lazy"
                   />
                 </button>
               ))}
