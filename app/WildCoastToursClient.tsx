@@ -393,7 +393,7 @@ export default function WildCoastToursClient() {
   return (
     <>
       {showPreloader && <Preloader onComplete={handlePreloaderComplete} progress={preloaderProgress} />}
-      <main className={`min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu overflow-hidden ${isScrollLocked ? 'h-screen overflow-hidden' : ''}`}>
+      <main className="min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu">
       {/* Hero Section */}
       <section className="relative h-screen w-full">
         {heroImages.map((image, index) => (
@@ -687,32 +687,59 @@ export default function WildCoastToursClient() {
             </div>
           </div>
 
-          {/* Thumbnail Strip - borderless Netflix style */}
+          {/* Thumbnail Strip - show 6 at a time with selected larger */}
           <div className="pb-6 md:pb-8">
-            <div ref={thumbnailStripRef} className="flex gap-1 md:gap-2 px-4 overflow-x-auto pb-2 scrollbar-hide scroll-smooth justify-start md:justify-center">
-              {november2025Images.map((img, idx) => (
-                <button
-                  key={idx}
-                  ref={(el) => {
-                    thumbnailRefs.current[idx] = el
-                  }}
-                  onClick={() => setNov2025Index(idx)}
-                  className={`flex-shrink-0 relative w-14 h-10 md:w-20 md:h-14 overflow-hidden transition-all duration-300 cursor-pointer ${
-                    idx === nov2025Index 
-                      ? "scale-125 opacity-100 z-10" 
-                      : "opacity-40 hover:opacity-70 grayscale hover:grayscale-0"
+            <div ref={thumbnailStripRef} className="flex gap-2 md:gap-3 px-4 justify-center items-center">
+              {(() => {
+                // Calculate which 6 thumbnails to show (centered around current)
+                const total = november2025Images.length
+                const visibleCount = 6
+                let startIdx = Math.max(0, nov2025Index - Math.floor(visibleCount / 2))
+                if (startIdx + visibleCount > total) {
+                  startIdx = Math.max(0, total - visibleCount)
+                }
+                const visibleImages = november2025Images.slice(startIdx, startIdx + visibleCount)
+                
+                return visibleImages.map((img, i) => {
+                  const actualIdx = startIdx + i
+                  const isSelected = actualIdx === nov2025Index
+                  
+                  return (
+                    <button
+                      key={actualIdx}
+                      ref={(el) => {
+                        thumbnailRefs.current[actualIdx] = el
+                      }}
+                      onClick={() => setNov2025Index(actualIdx)}
+                      className={`flex-shrink-0 relative overflow-hidden transition-all duration-300 cursor-pointer ${
+                        isSelected 
+                          ? "w-24 h-16 md:w-36 md:h-24 opacity-100 z-10" 
+                          : "w-14 h-10 md:w-20 md:h-14 opacity-50 hover:opacity-80 grayscale hover:grayscale-0"
+                      }`}
+                      aria-label={`View image ${actualIdx + 1}`}
+                    >
+                      <Image
+                        src={img.src || "/placeholder.svg"}
+                        alt={img.alt}
+                        fill
+                        className="object-cover"
+                        sizes={isSelected ? "144px" : "80px"}
+                        loading="lazy"
+                      />
+                    </button>
+                  )
+                })
+              })()}
+            </div>
+            {/* Progress dots */}
+            <div className="flex justify-center gap-1 mt-3">
+              {Array.from({ length: Math.ceil(november2025Images.length / 6) }).map((_, groupIdx) => (
+                <div
+                  key={groupIdx}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    Math.floor(nov2025Index / 6) === groupIdx ? "bg-[#F7931A]" : "bg-white/30"
                   }`}
-                  aria-label={`View image ${idx + 1}`}
-                >
-                  <Image
-                    src={img.src || "/placeholder.svg"}
-                    alt={img.alt}
-                    fill
-                    className="object-cover"
-                    sizes="96px"
-                    loading="lazy"
-                  />
-                </button>
+                />
               ))}
             </div>
           </div>
