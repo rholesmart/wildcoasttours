@@ -277,3 +277,34 @@ section {
   overflow: hidden;
   height: 100vh;
 }
+
+/* Fullscreen borderless experience */
+.fullscreen-ui {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Scout/hiking badge hover effect */
+.badge-hover {
+  transition: all 0.3s ease;
+}
+
+.badge-hover:hover {
+  filter: drop-shadow(0 0 8px rgba(247, 147, 26, 0.6));
+  transform: scale(1.1);
+}
+
+/* Netflix-style thumbnails */
+.thumbnail-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.thumbnail-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.thumbnail-item:hover {
+  transform: scale(1.2);
+  z-index: 10;
+}
