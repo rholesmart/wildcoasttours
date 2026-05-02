@@ -180,6 +180,7 @@ const timelineData = [
 
 export default function WildCoastToursClient() {
   const [showPreloader, setShowPreloader] = useState(true)
+  const [preloaderProgress, setPreloaderProgress] = useState(0)
   const [isScrollLocked, setIsScrollLocked] = useState(true)
   const [currentHeroImage, setCurrentHeroImage] = useState(0)
   const [currentTimelineIndex, setCurrentTimelineIndex] = useState(0)
@@ -227,6 +228,27 @@ export default function WildCoastToursClient() {
     }
     return () => document.body.classList.remove("scroll-locked")
   }, [isScrollLocked])
+
+  // Preloader progress animation
+  useEffect(() => {
+    if (!showPreloader) return
+    
+    let raf: number
+    const start = performance.now()
+    const duration = 2000 // 2 seconds to load
+    
+    const tick = (now: number) => {
+      const elapsed = now - start
+      const pct = Math.min(100, (elapsed / duration) * 100)
+      setPreloaderProgress(pct)
+      if (pct < 100) {
+        raf = requestAnimationFrame(tick)
+      }
+    }
+    
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [showPreloader])
 
   // Handle preloader complete
   const handlePreloaderComplete = () => {
@@ -370,7 +392,7 @@ export default function WildCoastToursClient() {
 
   return (
     <>
-      {showPreloader && <Preloader onComplete={handlePreloaderComplete} />}
+      {showPreloader && <Preloader onComplete={handlePreloaderComplete} progress={preloaderProgress} />}
       <main className={`min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu overflow-hidden ${isScrollLocked ? 'h-screen overflow-hidden' : ''}`}>
       {/* Hero Section */}
       <section className="relative h-screen w-full">
