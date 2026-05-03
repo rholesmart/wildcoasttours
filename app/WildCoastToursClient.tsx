@@ -13,6 +13,7 @@ import { Mail, Phone, ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react"
 import { sendBookingEmail } from "@/actions/send-email"
 import dynamic from "next/dynamic"
 import Preloader from "@/components/Preloader"
+import { CompassIcon, MountainIcon, HikerIcon, BackpackIcon } from "@/components/HikingIcons"
 
 const WildCoastMap = dynamic(() => import("@/components/WildCoastMap"), {
   ssr: false,
@@ -179,6 +180,7 @@ const timelineData = [
 
 export default function WildCoastToursClient() {
   const [showPreloader, setShowPreloader] = useState(true)
+  const [preloaderProgress, setPreloaderProgress] = useState(0)
   const [isScrollLocked, setIsScrollLocked] = useState(true)
   const [currentHeroImage, setCurrentHeroImage] = useState(0)
   const [currentTimelineIndex, setCurrentTimelineIndex] = useState(0)
@@ -227,10 +229,36 @@ export default function WildCoastToursClient() {
     return () => document.body.classList.remove("scroll-locked")
   }, [isScrollLocked])
 
+  // Preloader progress animation
+  useEffect(() => {
+    if (!showPreloader) return
+    
+    let raf: number
+    const start = performance.now()
+    const duration = 2000 // 2 seconds to load
+    
+    const tick = (now: number) => {
+      const elapsed = now - start
+      const pct = Math.min(100, (elapsed / duration) * 100)
+      setPreloaderProgress(pct)
+      if (pct < 100) {
+        raf = requestAnimationFrame(tick)
+      }
+    }
+    
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [showPreloader])
+
   // Handle preloader complete
   const handlePreloaderComplete = () => {
+    console.log("[v0] Preloader complete - unlocking scroll")
     setShowPreloader(false)
     setIsScrollLocked(false)
+    // Ensure scroll lock is removed
+    document.body.classList.remove("scroll-locked")
+    // Scroll to top when preloader finishes
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" })
   }
 
   // Hero slideshow
@@ -341,6 +369,9 @@ export default function WildCoastToursClient() {
   }
 
   useEffect(() => {
+    // Don't scroll thumbnails into view while preloader is showing
+    if (showPreloader) return
+    
     const activeThumb = thumbnailRefs.current[nov2025Index]
     if (activeThumb && thumbnailStripRef.current) {
       activeThumb.scrollIntoView({
@@ -349,7 +380,7 @@ export default function WildCoastToursClient() {
         block: "nearest",
       })
     }
-  }, [nov2025Index])
+  }, [nov2025Index, showPreloader])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -369,8 +400,8 @@ export default function WildCoastToursClient() {
 
   return (
     <>
-      {showPreloader && <Preloader onComplete={handlePreloaderComplete} />}
-      <main className={`min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu overflow-hidden ${isScrollLocked ? 'h-screen overflow-hidden' : ''}`}>
+      {showPreloader && <Preloader onComplete={handlePreloaderComplete} progress={preloaderProgress} />}
+      <main className="min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu">
       {/* Hero Section */}
       <section className="relative h-screen w-full">
         {heroImages.map((image, index) => (
@@ -394,33 +425,41 @@ export default function WildCoastToursClient() {
 
         <div className="absolute inset-0 bg-black/40 z-10" />
 
-        <div className="absolute bottom-8 right-8 z-30 flex flex-col gap-4">
+        {/* Scout-style contact buttons - borderless */}
+        <div className="absolute bottom-8 right-8 z-30 flex flex-col gap-3">
           <a
             href="tel:+27724285109"
-            className="w-14 h-14 rounded-full flex items-center justify-center text-white bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 transition-all duration-300"
+            className="w-12 h-12 flex items-center justify-center text-white/80 hover:text-[#F7931A] hover:scale-110 transition-all duration-300"
             aria-label="Call us"
           >
-            <Phone className="w-7 h-7" />
+            <Phone className="w-6 h-6" />
           </a>
           <a
             href="mailto:sinegugu@wildcoasttours.co.za"
-            className="w-14 h-14 rounded-full flex items-center justify-center text-white bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 transition-all duration-300"
+            className="w-12 h-12 flex items-center justify-center text-white/80 hover:text-[#F7931A] hover:scale-110 transition-all duration-300"
             aria-label="Email us"
           >
-            <Mail className="w-7 h-7" />
+            <Mail className="w-6 h-6" />
           </a>
         </div>
 
+        {/* Scout badge icons floating on sides */}
+        <div className="absolute left-6 top-1/2 -translate-y-1/2 z-20 hidden md:flex flex-col gap-6 text-white/30">
+          <CompassIcon className="w-8 h-8" />
+          <MountainIcon className="w-8 h-8" />
+          <HikerIcon className="w-8 h-8" />
+        </div>
+
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-20 px-4">
-          <h1 className="text-3xl md:text-5xl font-bold mb-4 font-ubuntu">Wild Coast Tours</h1>
-          <p className="text-lg md:text-xl mb-10">Authentic Eco-Tourism Experiences in Mpondoland</p>
+          {/* CTA Button - header is now in Preloader */}
           <Link href="/booking">
-            <Button
-              className="px-8 py-3 rounded-full font-semibold hover:opacity-90 transition duration-300 transform hover:scale-105 cursor-pointer"
-              style={{ backgroundColor: ACCENT_COLOR, color: "#1B5F8C" }}
+            <button
+              className="group flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-transparent border-2 border-white/40 hover:border-[#F7931A] hover:text-[#F7931A] rounded-none transition-all duration-300 transform hover:scale-105"
             >
-              Book Your Adventure
-            </Button>
+              <BackpackIcon className="w-6 h-6 group-hover:animate-bounce" />
+              <span>Book Your Adventure</span>
+              <CompassIcon className="w-5 h-5 opacity-60" />
+            </button>
           </Link>
           <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
             <DialogContent className="max-w-md bg-gray-50">
@@ -598,85 +637,116 @@ export default function WildCoastToursClient() {
           onTouchStart={handleNov2025TouchStart}
           onTouchEnd={handleNov2025TouchEnd}
         >
-          {/* Header */}
+          {/* Header with hiking icons */}
           <div className="pt-12 md:pt-16 px-4 text-center">
-            <h2 className="text-3xl md:text-5xl font-bold font-ubuntu text-white tracking-wide drop-shadow-lg">
-              Our Tours
-            </h2>
+            <div className="flex items-center justify-center gap-4 mb-2">
+              <MountainIcon className="w-8 h-8 md:w-10 md:h-10 text-white/40" />
+              <h2 className="text-3xl md:text-5xl font-bold font-ubuntu text-white tracking-wide drop-shadow-lg">
+                Our Tours
+              </h2>
+              <MountainIcon className="w-8 h-8 md:w-10 md:h-10 text-white/40" />
+            </div>
             <h3 
-              className="text-xl md:text-2xl font-bold mt-2 font-ubuntu tracking-widest drop-shadow-md"
+              className="text-xl md:text-2xl font-bold font-ubuntu tracking-widest drop-shadow-md flex items-center justify-center gap-2"
               style={{ color: ACCENT_COLOR }}
             >
+              <CompassIcon className="w-5 h-5" />
               November 2025
+              <CompassIcon className="w-5 h-5" />
             </h3>
           </div>
 
           {/* Main Image Area */}
           <div className="flex-1 flex items-center justify-center px-4 py-8">
             <div className="relative w-full max-w-6xl aspect-[16/10] md:aspect-[21/9]">
-              {/* Navigation Buttons */}
+              {/* Navigation Buttons - borderless scout style */}
               <button
                 onClick={prevNov2025}
-                className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 hover:scale-110 transition-all duration-300 cursor-pointer z-20 border border-white/20"
+                className="absolute left-2 md:left-6 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center text-white/70 hover:text-[#F7931A] hover:scale-125 transition-all duration-300 cursor-pointer z-20"
                 aria-label="Previous image"
               >
-                <ChevronLeft className="w-8 h-8 md:w-10 md:h-10" />
+                <ChevronLeft className="w-10 h-10 md:w-12 md:h-12" />
               </button>
               <button
                 onClick={nextNov2025}
-                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 hover:scale-110 transition-all duration-300 cursor-pointer z-20 border border-white/20"
+                className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 flex items-center justify-center text-white/70 hover:text-[#F7931A] hover:scale-125 transition-all duration-300 cursor-pointer z-20"
                 aria-label="Next image"
               >
-                <ChevronRight className="w-8 h-8 md:w-10 md:h-10" />
+                <ChevronRight className="w-10 h-10 md:w-12 md:h-12" />
               </button>
 
-              {/* Zoom Button */}
+              {/* Zoom Button - borderless */}
               <button
                 onClick={() => setZoomedImage(november2025Images[nov2025Index].src)}
-                className="absolute top-4 right-4 w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/60 hover:scale-110 transition-all duration-300 cursor-pointer z-20 border border-white/20"
+                className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center text-white/60 hover:text-[#F7931A] hover:scale-110 transition-all duration-300 cursor-pointer z-20"
                 aria-label="Zoom image"
               >
-                <ZoomIn className="w-6 h-6" />
+                <ZoomIn className="w-7 h-7" />
               </button>
 
-              {/* Image Counter */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-2 rounded-full bg-black/40 backdrop-blur-sm text-white text-sm md:text-base font-medium border border-white/20 z-20">
+              {/* Image Counter - minimal borderless */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80 text-sm md:text-base font-medium z-20 flex items-center gap-2">
+                <HikerIcon className="w-5 h-5 text-[#F7931A]" />
                 <span style={{ color: ACCENT_COLOR }}>{nov2025Index + 1}</span>
-                <span className="mx-2 text-white/60">/</span>
-                <span>{november2025Images.length}</span>
+                <span className="text-white/40">/</span>
+                <span className="text-white/60">{november2025Images.length}</span>
               </div>
             </div>
           </div>
 
-          {/* Thumbnail Strip */}
+          {/* Thumbnail Strip - show 6 at a time with selected larger */}
           <div className="pb-6 md:pb-8">
-            <div ref={thumbnailStripRef} className="flex gap-2 md:gap-3 px-4 overflow-x-auto pb-2 scrollbar-hide scroll-smooth justify-start md:justify-center">
-              {november2025Images.map((img, idx) => (
-                <button
-                  key={idx}
-                  ref={(el) => {
-                    thumbnailRefs.current[idx] = el
-                  }}
-                  onClick={() => setNov2025Index(idx)}
-                  className={`flex-shrink-0 relative w-16 h-12 md:w-24 md:h-16 rounded-lg overflow-hidden transition-all duration-300 cursor-pointer border-2 ${
-                    idx === nov2025Index 
-                      ? "scale-110 opacity-100 shadow-lg shadow-orange-500/30" 
-                      : "opacity-50 hover:opacity-80 border-transparent"
+            <div ref={thumbnailStripRef} className="flex gap-2 md:gap-3 px-4 justify-center items-center">
+              {(() => {
+                // Calculate which 6 thumbnails to show (centered around current)
+                const total = november2025Images.length
+                const visibleCount = 6
+                let startIdx = Math.max(0, nov2025Index - Math.floor(visibleCount / 2))
+                if (startIdx + visibleCount > total) {
+                  startIdx = Math.max(0, total - visibleCount)
+                }
+                const visibleImages = november2025Images.slice(startIdx, startIdx + visibleCount)
+                
+                return visibleImages.map((img, i) => {
+                  const actualIdx = startIdx + i
+                  const isSelected = actualIdx === nov2025Index
+                  
+                  return (
+                    <button
+                      key={actualIdx}
+                      ref={(el) => {
+                        thumbnailRefs.current[actualIdx] = el
+                      }}
+                      onClick={() => setNov2025Index(actualIdx)}
+                      className={`flex-shrink-0 relative overflow-hidden transition-all duration-300 cursor-pointer ${
+                        isSelected 
+                          ? "w-24 h-16 md:w-36 md:h-24 opacity-100 z-10" 
+                          : "w-14 h-10 md:w-20 md:h-14 opacity-50 hover:opacity-80 grayscale hover:grayscale-0"
+                      }`}
+                      aria-label={`View image ${actualIdx + 1}`}
+                    >
+                      <Image
+                        src={img.src || "/placeholder.svg"}
+                        alt={img.alt}
+                        fill
+                        className="object-cover"
+                        sizes={isSelected ? "144px" : "80px"}
+                        loading="lazy"
+                      />
+                    </button>
+                  )
+                })
+              })()}
+            </div>
+            {/* Progress dots */}
+            <div className="flex justify-center gap-1 mt-3">
+              {Array.from({ length: Math.ceil(november2025Images.length / 6) }).map((_, groupIdx) => (
+                <div
+                  key={groupIdx}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    Math.floor(nov2025Index / 6) === groupIdx ? "bg-[#F7931A]" : "bg-white/30"
                   }`}
-                  style={{
-                    borderColor: idx === nov2025Index ? ACCENT_COLOR : "transparent",
-                  }}
-                  aria-label={`View image ${idx + 1}`}
-                >
-                  <Image
-                    src={img.src || "/placeholder.svg"}
-                    alt={img.alt}
-                    fill
-                    className="object-cover"
-                    sizes="96px"
-                    loading="lazy"
-                  />
-                </button>
+                />
               ))}
             </div>
           </div>
