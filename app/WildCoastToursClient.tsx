@@ -254,6 +254,8 @@ export default function WildCoastToursClient() {
   const handlePreloaderComplete = () => {
     setShowPreloader(false)
     setIsScrollLocked(false)
+    // Scroll to top when preloader finishes
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" })
   }
 
   // Hero slideshow
@@ -364,6 +366,9 @@ export default function WildCoastToursClient() {
   }
 
   useEffect(() => {
+    // Don't scroll thumbnails into view while preloader is showing
+    if (showPreloader) return
+    
     const activeThumb = thumbnailRefs.current[nov2025Index]
     if (activeThumb && thumbnailStripRef.current) {
       activeThumb.scrollIntoView({
@@ -372,7 +377,7 @@ export default function WildCoastToursClient() {
         block: "nearest",
       })
     }
-  }, [nov2025Index])
+  }, [nov2025Index, showPreloader])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
