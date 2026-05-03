@@ -181,7 +181,6 @@ const timelineData = [
 export default function WildCoastToursClient() {
   const [showPreloader, setShowPreloader] = useState(true)
   const [preloaderProgress, setPreloaderProgress] = useState(0)
-  const [isScrollLocked, setIsScrollLocked] = useState(true)
   const [currentHeroImage, setCurrentHeroImage] = useState(0)
   const [currentTimelineIndex, setCurrentTimelineIndex] = useState(0)
   const [selectedTimelineItem, setSelectedTimelineItem] = useState<(typeof timelineData)[0] | null>(null)
@@ -219,16 +218,6 @@ export default function WildCoastToursClient() {
 
   const currentTimelineEvent = timelineData[currentTimelineIndex]
 
-  // Scroll lock during preloader
-  useEffect(() => {
-    if (isScrollLocked) {
-      document.body.classList.add("scroll-locked")
-    } else {
-      document.body.classList.remove("scroll-locked")
-    }
-    return () => document.body.classList.remove("scroll-locked")
-  }, [isScrollLocked])
-
   // Preloader progress animation
   useEffect(() => {
     if (!showPreloader) return
@@ -252,11 +241,7 @@ export default function WildCoastToursClient() {
 
   // Handle preloader complete
   const handlePreloaderComplete = () => {
-    console.log("[v0] Preloader complete - unlocking scroll")
     setShowPreloader(false)
-    setIsScrollLocked(false)
-    // Ensure scroll lock is removed
-    document.body.classList.remove("scroll-locked")
     // Scroll to top when preloader finishes
     window.scrollTo({ top: 0, left: 0, behavior: "auto" })
   }

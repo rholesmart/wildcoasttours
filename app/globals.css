@@ -272,11 +272,6 @@ section {
   animation: fade-in-up 0.5s ease-out forwards;
 }
 
-/* Lock scroll */
-.scroll-locked {
-  overflow: hidden;
-}
-
 /* Fullscreen borderless experience */
 .fullscreen-ui {
   border: none !important;
