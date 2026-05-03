@@ -275,7 +275,6 @@ section {
 /* Lock scroll */
 .scroll-locked {
   overflow: hidden;
-  height: 100vh;
 }
 
 /* Fullscreen borderless experience */
