@@ -252,8 +252,11 @@ export default function WildCoastToursClient() {
 
   // Handle preloader complete
   const handlePreloaderComplete = () => {
+    console.log("[v0] Preloader complete - unlocking scroll")
     setShowPreloader(false)
     setIsScrollLocked(false)
+    // Ensure scroll lock is removed
+    document.body.classList.remove("scroll-locked")
     // Scroll to top when preloader finishes
     window.scrollTo({ top: 0, left: 0, behavior: "auto" })
   }
@@ -448,20 +451,7 @@ export default function WildCoastToursClient() {
         </div>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-20 px-4">
-          {/* Hiker Logo - always visible, on top of preloader */}
-          <div className="absolute top-16 z-[110]">
-            <Image
-              src="/images/hiker-icon.png"
-              alt="Wild Coast Tours Hiker"
-              width={80}
-              height={80}
-              className="invert"
-              priority
-            />
-          </div>
-
-          <h1 className="text-3xl md:text-5xl font-bold mb-4 font-ubuntu">Wild Coast Tours</h1>
-          <p className="text-lg md:text-xl mb-10">Authentic Eco-Tourism Experiences in Mpondoland</p>
+          {/* CTA Button - header is now in Preloader */}
           <Link href="/booking">
             <button
               className="group flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-transparent border-2 border-white/40 hover:border-[#F7931A] hover:text-[#F7931A] rounded-none transition-all duration-300 transform hover:scale-105"
