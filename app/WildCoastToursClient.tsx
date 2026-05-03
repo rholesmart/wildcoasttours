@@ -448,6 +448,18 @@ export default function WildCoastToursClient() {
         </div>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-20 px-4">
+          {/* Hiker Logo - always visible, on top of preloader */}
+          <div className="absolute top-16 z-[110]">
+            <Image
+              src="/images/hiker-icon.png"
+              alt="Wild Coast Tours Hiker"
+              width={80}
+              height={80}
+              className="invert"
+              priority
+            />
+          </div>
+
           <h1 className="text-3xl md:text-5xl font-bold mb-4 font-ubuntu">Wild Coast Tours</h1>
           <p className="text-lg md:text-xl mb-10">Authentic Eco-Tourism Experiences in Mpondoland</p>
           <Link href="/booking">

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
 
 interface PreloaderProps {
   onComplete: () => void
@@ -39,22 +38,13 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
       
       {/* Content centered */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-4">
-        {/* Hiker logo */}
-        <div className="mb-8">
-          <Image
-            src="/images/hiker-icon.png"
-            alt="Wild Coast Tours Hiker"
-            width={80}
-            height={80}
-            className="invert"
-            priority
+        {/* Progress bar at top */}
+        <div className="absolute top-32 w-48 md:w-64 h-1 bg-white/20 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full bg-[#F7931A] transition-[width] duration-100 ease-linear"
+            style={{ width: `${progress}%` }}
           />
         </div>
-
-        {/* Title - always visible */}
-        <h1 className="text-3xl md:text-5xl font-bold font-ubuntu mb-4">
-          Wild Coast Tours
-        </h1>
 
         {/* Tagline - fades in with progress */}
         <p
@@ -64,13 +54,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
           Authentic Eco-Tourism Experiences in Mpondoland
         </p>
 
-        {/* Progress bar */}
-        <div className="mt-8 w-48 md:w-64 h-1 bg-white/20 rounded-full overflow-hidden">
-          <div
-            className="h-full rounded-full bg-[#F7931A] transition-[width] duration-100 ease-linear"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+
       </div>
     </div>
   )
