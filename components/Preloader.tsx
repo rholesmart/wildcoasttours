@@ -24,9 +24,6 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
     }
   }, [progress, isFading, onComplete])
 
-  // Calculate tagline opacity based on progress (0-100% progress = 0-100% opacity)
-  const taglineOpacity = progress / 100
-
   return (
     <div
       className={`fixed inset-0 z-[100] transition-opacity duration-1000 ease-out ${
@@ -39,26 +36,18 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
 
       {/* Content centered */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-4">
-        {/* Logo */}
+        {/* Logo - 75% mobile, 50% desktop */}
         <Image
           src="/images/wild-coast-logo.webp"
-          alt="Wild Coast Tours Logo"
-          width={100}
-          height={100}
-          className="mb-6"
+          alt="Wild Coast Tours"
+          width={300}
+          height={300}
+          className="w-3/4 md:w-1/2 h-auto mb-6"
           priority
         />
 
-        {/* Title - always visible */}
-        <h1 className="text-3xl md:text-5xl font-bold font-ubuntu mb-4">
-          Wild Coast Tours
-        </h1>
-
-        {/* Subtitle - fades in with progress */}
-        <p
-          className="text-lg md:text-xl mb-8 transition-opacity duration-300 max-w-md"
-          style={{ opacity: taglineOpacity }}
-        >
+        {/* Subtitle - always visible, never fades */}
+        <p className="text-lg md:text-xl mb-8 max-w-md">
           Authentic Eco-Tourism Experiences in Mpondoland
         </p>
 

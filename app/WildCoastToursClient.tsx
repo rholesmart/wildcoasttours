@@ -435,17 +435,21 @@ export default function WildCoastToursClient() {
           <HikerIcon className="w-8 h-8" />
         </div>
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-20 px-4">
-          {/* CTA Button - header is now in Preloader */}
-          <Link href="/booking">
-            <button
-              className="group flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-transparent border-2 border-white/40 hover:border-[#F7931A] hover:text-[#F7931A] rounded-none transition-all duration-300 transform hover:scale-105"
-            >
-              <BackpackIcon className="w-6 h-6 group-hover:animate-bounce" />
-              <span>Book Your Adventure</span>
-              <CompassIcon className="w-5 h-5 opacity-60" />
-            </button>
-          </Link>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
+          {/* CTA Button - behind preloader (z-index 50), only visible after preload */}
+          <div className="z-50">
+            <Link href="/booking">
+              <button
+                className={`group flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-transparent border-2 border-white/40 hover:border-[#F7931A] hover:text-[#F7931A] rounded-none transition-all duration-300 transform hover:scale-105 ${
+                  showPreloader ? 'opacity-0 pointer-events-none' : 'opacity-100'
+                }`}
+              >
+                <BackpackIcon className="w-6 h-6 group-hover:animate-bounce" />
+                <span>Book Your Adventure</span>
+                <CompassIcon className="w-5 h-5 opacity-60" />
+              </button>
+            </Link>
+          </div>
           <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
             <DialogContent className="max-w-md bg-gray-50">
               <DialogHeader>
