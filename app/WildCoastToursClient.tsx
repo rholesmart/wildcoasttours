@@ -382,19 +382,7 @@ export default function WildCoastToursClient() {
     setNov2025TouchStart(null)
   }
 
-  useEffect(() => {
-    // Don't scroll thumbnails into view while preloader is showing
-    if (showPreloader) return
-    
-    const activeThumb = thumbnailRefs.current[nov2025Index]
-    if (activeThumb && thumbnailStripRef.current) {
-      activeThumb.scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
-      })
-    }
-  }, [nov2025Index, showPreloader])
+  // Removed auto-scroll to gallery - no automatic scrolling
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -653,25 +641,12 @@ export default function WildCoastToursClient() {
 
         {/* Content Overlay */}
         <div 
-          className="relative z-10 min-h-screen flex flex-col"
+          className="relative z-10 min-h-screen flex flex-col justify-center items-center"
           onTouchStart={handleNov2025TouchStart}
           onTouchEnd={handleNov2025TouchEnd}
         >
-          {/* Header with hiking icons */}
-          <div className="pt-12 md:pt-16 px-4 text-center">
-            <h2 className="text-3xl md:text-5xl font-bold font-ubuntu text-white tracking-wide drop-shadow-lg mb-2">
-              Our Tours
-            </h2>
-            <h3 
-              className="text-xl md:text-2xl font-bold font-ubuntu tracking-widest drop-shadow-md"
-              style={{ color: ACCENT_COLOR }}
-            >
-              November 2025
-            </h3>
-          </div>
-
-          {/* Main Image Area */}
-          <div className="flex-1 flex items-center justify-center px-4 py-8">
+          {/* Main Image Area - fills entire screen */}
+          <div className="flex-1 flex items-center justify-center px-4 py-0 w-full">
             <div className="relative w-full max-w-6xl aspect-[16/10] md:aspect-[21/9]">
               {/* Navigation Buttons - borderless scout style */}
               <button
@@ -689,13 +664,7 @@ export default function WildCoastToursClient() {
                 <ChevronRight className="w-10 h-10 md:w-12 md:h-12" />
               </button>
 
-              {/* Image Counter - in the middle */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80 text-sm md:text-base font-medium z-20 flex items-center gap-2">
-                <HikerIcon className="w-5 h-5 text-[#F7931A]" />
-                <span style={{ color: ACCENT_COLOR }}>{nov2025Index + 1}</span>
-                <span className="text-white/40">/</span>
-                <span className="text-white/60">{november2025Images.length}</span>
-              </div>
+
             </div>
           </div>
 
@@ -743,16 +712,12 @@ export default function WildCoastToursClient() {
                 })
               })()}
             </div>
-            {/* Progress dots */}
-            <div className="flex justify-center gap-1 mt-3">
-              {Array.from({ length: Math.ceil(november2025Images.length / 6) }).map((_, groupIdx) => (
-                <div
-                  key={groupIdx}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    Math.floor(nov2025Index / 6) === groupIdx ? "bg-[#F7931A]" : "bg-white/30"
-                  }`}
-                />
-              ))}
+            {/* Photo Counter at bottom */}
+            <div className="flex justify-center gap-2 mt-4 text-white/80 text-sm md:text-base font-medium">
+              <HikerIcon className="w-5 h-5 text-[#F7931A]" />
+              <span style={{ color: ACCENT_COLOR }}>{nov2025Index + 1}</span>
+              <span className="text-white/40">/</span>
+              <span className="text-white/60">{november2025Images.length}</span>
             </div>
           </div>
         </div>
