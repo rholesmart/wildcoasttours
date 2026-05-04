@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Slider } from "@/components/ui/slider"
-import { Mail, Phone, ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react"
+import { Mail, Phone, ChevronLeft, ChevronRight, X } from "lucide-react"
 import { sendBookingEmail } from "@/actions/send-email"
 import dynamic from "next/dynamic"
 import Preloader from "@/components/Preloader"
@@ -197,7 +197,6 @@ export default function WildCoastToursClient() {
   const [submissionMessage, setSubmissionMessage] = useState<string | null>(null)
 
   const [nov2025Index, setNov2025Index] = useState(0)
-  const [zoomedImage, setZoomedImage] = useState<string | null>(null)
   const [nov2025TouchStart, setNov2025TouchStart] = useState<number | null>(null)
   const thumbnailStripRef = useRef<HTMLDivElement>(null)
   const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([])
@@ -246,13 +245,45 @@ export default function WildCoastToursClient() {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" })
   }
 
-  // Hero slideshow
+  // Hero slideshow with random delays
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentHeroImage((prev) => (prev + 1) % heroImages.length)
-    }, 5000)
-    return () => clearInterval(interval)
+    const scheduleNextSlide = () => {
+      // Base 5 seconds + random 0-3 seconds
+      const delay = 5000 + Math.random() * 3000
+      const timer = setTimeout(() => {
+        setCurrentHeroImage((prev) => (prev + 1) % heroImages.length)
+        scheduleNextSlide()
+      }, delay)
+      return timer
+    }
+    
+    const timerId = scheduleNextSlide()
+    return () => clearTimeout(timerId)
   }, [])
+
+  // Hero swipe handlers
+  const [heroTouchStart, setHeroTouchStart] = useState<number | null>(null)
+  
+  const handleHeroTouchStart = (e: React.TouchEvent) => {
+    setHeroTouchStart(e.touches[0].clientX)
+  }
+  
+  const handleHeroTouchEnd = (e: React.TouchEvent) => {
+    if (heroTouchStart === null) return
+    const touchEnd = e.changedTouches[0].clientX
+    const diff = heroTouchStart - touchEnd
+    
+    if (Math.abs(diff) > 50) { // Swipe threshold
+      if (diff > 0) {
+        // Swiped left - show next
+        setCurrentHeroImage((prev) => (prev + 1) % heroImages.length)
+      } else {
+        // Swiped right - show previous
+        setCurrentHeroImage((prev) => (prev - 1 + heroImages.length) % heroImages.length)
+      }
+    }
+    setHeroTouchStart(null)
+  }
 
   // Fade-in animations on scroll
   useEffect(() => {
@@ -388,7 +419,11 @@ export default function WildCoastToursClient() {
       {showPreloader && <Preloader onComplete={handlePreloaderComplete} progress={preloaderProgress} />}
       <main className="min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu">
       {/* Hero Section */}
-      <section className="relative h-screen w-full">
+      <section 
+        className="relative h-screen w-full cursor-grab active:cursor-grabbing"
+        onTouchStart={handleHeroTouchStart}
+        onTouchEnd={handleHeroTouchEnd}
+      >
         {heroImages.map((image, index) => (
           <div
             key={index}
@@ -628,20 +663,14 @@ export default function WildCoastToursClient() {
         >
           {/* Header with hiking icons */}
           <div className="pt-12 md:pt-16 px-4 text-center">
-            <div className="flex items-center justify-center gap-4 mb-2">
-              <MountainIcon className="w-8 h-8 md:w-10 md:h-10 text-white/40" />
-              <h2 className="text-3xl md:text-5xl font-bold font-ubuntu text-white tracking-wide drop-shadow-lg">
-                Our Tours
-              </h2>
-              <MountainIcon className="w-8 h-8 md:w-10 md:h-10 text-white/40" />
-            </div>
+            <h2 className="text-3xl md:text-5xl font-bold font-ubuntu text-white tracking-wide drop-shadow-lg mb-2">
+              Our Tours
+            </h2>
             <h3 
-              className="text-xl md:text-2xl font-bold font-ubuntu tracking-widest drop-shadow-md flex items-center justify-center gap-2"
+              className="text-xl md:text-2xl font-bold font-ubuntu tracking-widest drop-shadow-md"
               style={{ color: ACCENT_COLOR }}
             >
-              <CompassIcon className="w-5 h-5" />
               November 2025
-              <CompassIcon className="w-5 h-5" />
             </h3>
           </div>
 
@@ -664,16 +693,7 @@ export default function WildCoastToursClient() {
                 <ChevronRight className="w-10 h-10 md:w-12 md:h-12" />
               </button>
 
-              {/* Zoom Button - borderless */}
-              <button
-                onClick={() => setZoomedImage(november2025Images[nov2025Index].src)}
-                className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center text-white/60 hover:text-[#F7931A] hover:scale-110 transition-all duration-300 cursor-pointer z-20"
-                aria-label="Zoom image"
-              >
-                <ZoomIn className="w-7 h-7" />
-              </button>
-
-              {/* Image Counter - minimal borderless */}
+              {/* Image Counter - in the middle */}
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80 text-sm md:text-base font-medium z-20 flex items-center gap-2">
                 <HikerIcon className="w-5 h-5 text-[#F7931A]" />
                 <span style={{ color: ACCENT_COLOR }}>{nov2025Index + 1}</span>
