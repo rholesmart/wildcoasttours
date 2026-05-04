@@ -241,8 +241,6 @@ export default function WildCoastToursClient() {
   // Handle preloader complete
   const handlePreloaderComplete = () => {
     setShowPreloader(false)
-    // Scroll to top when preloader finishes
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" })
   }
 
   // Hero slideshow with random delays
@@ -484,7 +482,7 @@ export default function WildCoastToursClient() {
             </Link>
           </div>
           <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-            <DialogContent className="max-w-md bg-gray-50">
+            <DialogContent className="max-w-md bg-white border-0 shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold text-[#1B5F8C] text-center">Book Your Adventure</DialogTitle>
               </DialogHeader>

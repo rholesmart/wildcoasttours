@@ -39,22 +39,17 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
   const taglineOpacity = progress / 100
 
   return (
-    <div
-      className={`fixed inset-0 z-[100] transition-opacity duration-[1000ms] ease-out pointer-events-none ${
-        textFading ? 'opacity-0' : 'opacity-100'
-      }`}
-      aria-hidden={textFading}
-    >
-      {/* Black overlay - fades after 1s of being at 100% */}
-      <div 
-        className={`absolute inset-0 bg-black transition-opacity duration-[1000ms] ease-out ${
+    <>
+      {/* Black overlay - only the background fades */}
+      <div
+        className={`fixed inset-0 z-[100] bg-black transition-opacity duration-[1000ms] ease-out pointer-events-none ${
           backgroundFading ? 'opacity-0' : 'opacity-100'
         }`}
       />
 
-      {/* Content - stays visible until separate fade */}
-      <div className="relative z-10 h-full flex flex-col items-center justify-center text-center text-white px-4">
-        {/* Logo - 67.5% mobile (10% smaller than 3/4), 25% desktop (50% smaller than 1/2) */}
+      {/* Content - logo and text never fade, always on top */}
+      <div className="fixed inset-0 z-[101] h-full flex flex-col items-center justify-center text-center text-white px-4 pointer-events-none">
+        {/* Logo - 67.5% mobile (10% smaller than 3/4), 25% desktop (50% smaller than 1/2) - NEVER FADES */}
         <Image
           src="/images/wild-coast-logo.webp"
           alt="Wild Coast Tours"
@@ -64,7 +59,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
           priority
         />
 
-        {/* Subtitle - fades in with progress, doesn't fade out until later */}
+        {/* Subtitle - fades in with progress, doesn't fade out */}
         <p 
           className="text-lg md:text-xl mb-8 max-w-md transition-opacity duration-300"
           style={{ opacity: taglineOpacity }}
@@ -82,6 +77,6 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
           </div>
         )}
       </div>
-    </div>
+    </>
   )
 }
