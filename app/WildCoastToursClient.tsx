@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Slider } from "@/components/ui/slider"
-import { Mail, Phone, ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react"
+import { Mail, Phone, ChevronLeft, ChevronRight, X } from "lucide-react"
 import { sendBookingEmail } from "@/actions/send-email"
 import dynamic from "next/dynamic"
 import Preloader from "@/components/Preloader"
@@ -181,7 +181,6 @@ const timelineData = [
 export default function WildCoastToursClient() {
   const [showPreloader, setShowPreloader] = useState(true)
   const [preloaderProgress, setPreloaderProgress] = useState(0)
-  const [isScrollLocked, setIsScrollLocked] = useState(true)
   const [currentHeroImage, setCurrentHeroImage] = useState(0)
   const [currentTimelineIndex, setCurrentTimelineIndex] = useState(0)
   const [selectedTimelineItem, setSelectedTimelineItem] = useState<(typeof timelineData)[0] | null>(null)
@@ -198,7 +197,6 @@ export default function WildCoastToursClient() {
   const [submissionMessage, setSubmissionMessage] = useState<string | null>(null)
 
   const [nov2025Index, setNov2025Index] = useState(0)
-  const [zoomedImage, setZoomedImage] = useState<string | null>(null)
   const [nov2025TouchStart, setNov2025TouchStart] = useState<number | null>(null)
   const thumbnailStripRef = useRef<HTMLDivElement>(null)
   const thumbnailRefs = useRef<(HTMLButtonElement | null)[]>([])
@@ -218,16 +216,6 @@ export default function WildCoastToursClient() {
   const [dynamicBorderColor, setDynamicBorderColor] = useState("#1B5F8C")
 
   const currentTimelineEvent = timelineData[currentTimelineIndex]
-
-  // Scroll lock during preloader
-  useEffect(() => {
-    if (isScrollLocked) {
-      document.body.classList.add("scroll-locked")
-    } else {
-      document.body.classList.remove("scroll-locked")
-    }
-    return () => document.body.classList.remove("scroll-locked")
-  }, [isScrollLocked])
 
   // Preloader progress animation
   useEffect(() => {
@@ -252,22 +240,48 @@ export default function WildCoastToursClient() {
 
   // Handle preloader complete
   const handlePreloaderComplete = () => {
-    console.log("[v0] Preloader complete - unlocking scroll")
     setShowPreloader(false)
-    setIsScrollLocked(false)
-    // Ensure scroll lock is removed
-    document.body.classList.remove("scroll-locked")
-    // Scroll to top when preloader finishes
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" })
   }
 
-  // Hero slideshow
+  // Hero slideshow with random delays
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentHeroImage((prev) => (prev + 1) % heroImages.length)
-    }, 5000)
-    return () => clearInterval(interval)
+    const scheduleNextSlide = () => {
+      // Base 5 seconds + random 0-3 seconds = 5-8 seconds total
+      const delay = 5000 + Math.random() * 3000
+      const timer = setTimeout(() => {
+        setCurrentHeroImage((prev) => (prev + 1) % heroImages.length)
+        scheduleNextSlide()
+      }, delay)
+      return timer
+    }
+    
+    const timerId = scheduleNextSlide()
+    return () => clearTimeout(timerId)
   }, [])
+
+  // Hero swipe handlers
+  const [heroTouchStart, setHeroTouchStart] = useState<number | null>(null)
+  
+  const handleHeroTouchStart = (e: React.TouchEvent) => {
+    setHeroTouchStart(e.touches[0].clientX)
+  }
+  
+  const handleHeroTouchEnd = (e: React.TouchEvent) => {
+    if (heroTouchStart === null) return
+    const touchEnd = e.changedTouches[0].clientX
+    const diff = heroTouchStart - touchEnd
+    
+    if (Math.abs(diff) > 50) { // Swipe threshold
+      if (diff > 0) {
+        // Swiped left - show next
+        setCurrentHeroImage((prev) => (prev + 1) % heroImages.length)
+      } else {
+        // Swiped right - show previous
+        setCurrentHeroImage((prev) => (prev - 1 + heroImages.length) % heroImages.length)
+      }
+    }
+    setHeroTouchStart(null)
+  }
 
   // Fade-in animations on scroll
   useEffect(() => {
@@ -368,19 +382,7 @@ export default function WildCoastToursClient() {
     setNov2025TouchStart(null)
   }
 
-  useEffect(() => {
-    // Don't scroll thumbnails into view while preloader is showing
-    if (showPreloader) return
-    
-    const activeThumb = thumbnailRefs.current[nov2025Index]
-    if (activeThumb && thumbnailStripRef.current) {
-      activeThumb.scrollIntoView({
-        behavior: "smooth",
-        inline: "center",
-        block: "nearest",
-      })
-    }
-  }, [nov2025Index, showPreloader])
+  // Removed auto-scroll to gallery - no automatic scrolling
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -403,7 +405,11 @@ export default function WildCoastToursClient() {
       {showPreloader && <Preloader onComplete={handlePreloaderComplete} progress={preloaderProgress} />}
       <main className="min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu">
       {/* Hero Section */}
-      <section className="relative h-screen w-full">
+      <section 
+        className="relative h-screen w-full cursor-grab active:cursor-grabbing"
+        onTouchStart={handleHeroTouchStart}
+        onTouchEnd={handleHeroTouchEnd}
+      >
         {heroImages.map((image, index) => (
           <div
             key={index}
@@ -450,19 +456,31 @@ export default function WildCoastToursClient() {
           <HikerIcon className="w-8 h-8" />
         </div>
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-20 px-4">
-          {/* CTA Button - header is now in Preloader */}
-          <Link href="/booking">
-            <button
-              className="group flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-transparent border-2 border-white/40 hover:border-[#F7931A] hover:text-[#F7931A] rounded-none transition-all duration-300 transform hover:scale-105"
-            >
-              <BackpackIcon className="w-6 h-6 group-hover:animate-bounce" />
-              <span>Book Your Adventure</span>
-              <CompassIcon className="w-5 h-5 opacity-60" />
-            </button>
-          </Link>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
+          {/* Logo - stays visible always with highest z-index */}
+          <Image
+            src="/images/wild-coast-logo.webp"
+            alt="Wild Coast Tours"
+            width={300}
+            height={300}
+            className="w-[67.5%] md:w-1/4 h-auto mb-6 absolute top-20 z-[102]"
+            priority
+          />
+
+          {/* CTA Button - visible after preload */}
+          <div className={`z-50 transition-opacity duration-1000 ${
+            showPreloader ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}>
+            <Link href="/booking">
+              <button
+                className="px-8 py-4 text-lg font-semibold text-white bg-transparent hover:text-[#F7931A] active:text-[#F7931A] transition-colors duration-300"
+              >
+                Book Your Adventure
+              </button>
+            </Link>
+          </div>
           <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-            <DialogContent className="max-w-md bg-gray-50">
+            <DialogContent className="max-w-md bg-white border-0 shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold text-[#1B5F8C] text-center">Book Your Adventure</DialogTitle>
               </DialogHeader>
@@ -633,31 +651,12 @@ export default function WildCoastToursClient() {
 
         {/* Content Overlay */}
         <div 
-          className="relative z-10 min-h-screen flex flex-col"
+          className="relative z-10 min-h-screen flex flex-col justify-center items-center"
           onTouchStart={handleNov2025TouchStart}
           onTouchEnd={handleNov2025TouchEnd}
         >
-          {/* Header with hiking icons */}
-          <div className="pt-12 md:pt-16 px-4 text-center">
-            <div className="flex items-center justify-center gap-4 mb-2">
-              <MountainIcon className="w-8 h-8 md:w-10 md:h-10 text-white/40" />
-              <h2 className="text-3xl md:text-5xl font-bold font-ubuntu text-white tracking-wide drop-shadow-lg">
-                Our Tours
-              </h2>
-              <MountainIcon className="w-8 h-8 md:w-10 md:h-10 text-white/40" />
-            </div>
-            <h3 
-              className="text-xl md:text-2xl font-bold font-ubuntu tracking-widest drop-shadow-md flex items-center justify-center gap-2"
-              style={{ color: ACCENT_COLOR }}
-            >
-              <CompassIcon className="w-5 h-5" />
-              November 2025
-              <CompassIcon className="w-5 h-5" />
-            </h3>
-          </div>
-
-          {/* Main Image Area */}
-          <div className="flex-1 flex items-center justify-center px-4 py-8">
+          {/* Main Image Area - fills entire screen */}
+          <div className="flex-1 flex items-center justify-center px-4 py-0 w-full">
             <div className="relative w-full max-w-6xl aspect-[16/10] md:aspect-[21/9]">
               {/* Navigation Buttons - borderless scout style */}
               <button
@@ -675,22 +674,7 @@ export default function WildCoastToursClient() {
                 <ChevronRight className="w-10 h-10 md:w-12 md:h-12" />
               </button>
 
-              {/* Zoom Button - borderless */}
-              <button
-                onClick={() => setZoomedImage(november2025Images[nov2025Index].src)}
-                className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center text-white/60 hover:text-[#F7931A] hover:scale-110 transition-all duration-300 cursor-pointer z-20"
-                aria-label="Zoom image"
-              >
-                <ZoomIn className="w-7 h-7" />
-              </button>
 
-              {/* Image Counter - minimal borderless */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80 text-sm md:text-base font-medium z-20 flex items-center gap-2">
-                <HikerIcon className="w-5 h-5 text-[#F7931A]" />
-                <span style={{ color: ACCENT_COLOR }}>{nov2025Index + 1}</span>
-                <span className="text-white/40">/</span>
-                <span className="text-white/60">{november2025Images.length}</span>
-              </div>
             </div>
           </div>
 
@@ -738,72 +722,18 @@ export default function WildCoastToursClient() {
                 })
               })()}
             </div>
-            {/* Progress dots */}
-            <div className="flex justify-center gap-1 mt-3">
-              {Array.from({ length: Math.ceil(november2025Images.length / 6) }).map((_, groupIdx) => (
-                <div
-                  key={groupIdx}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    Math.floor(nov2025Index / 6) === groupIdx ? "bg-[#F7931A]" : "bg-white/30"
-                  }`}
-                />
-              ))}
+            {/* Photo Counter at bottom */}
+            <div className="flex justify-center gap-2 mt-4 text-white/80 text-sm md:text-base font-medium">
+              <HikerIcon className="w-5 h-5 text-[#F7931A]" />
+              <span style={{ color: ACCENT_COLOR }}>{nov2025Index + 1}</span>
+              <span className="text-white/40">/</span>
+              <span className="text-white/60">{november2025Images.length}</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Zoom Modal */}
-      {zoomedImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
-          onClick={() => setZoomedImage(null)}
-        >
-          <button
-            onClick={() => setZoomedImage(null)}
-            className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer z-10"
-            aria-label="Close zoom"
-          >
-            <X className="w-8 h-8" />
-          </button>
-          <div className="relative w-full h-full max-w-7xl max-h-[90vh] m-4">
-            <Image
-              src={zoomedImage || "/placeholder.svg"}
-              alt="Zoomed view"
-              fill
-              className="object-contain"
-              sizes="100vw"
-              onClick={(e) => e.stopPropagation()}
-              priority={nov2025Index < 6}
-              loading={nov2025Index < 6 ? undefined : "lazy"}
-            />
-          </div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              const newIndex = (nov2025Index - 1 + november2025Images.length) % november2025Images.length
-              setNov2025Index(newIndex)
-              setZoomedImage(november2025Images[newIndex].src)
-            }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer"
-            aria-label="Previous image"
-          >
-            <ChevronLeft className="w-10 h-10" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              const newIndex = (nov2025Index + 1) % november2025Images.length
-              setNov2025Index(newIndex)
-              setZoomedImage(november2025Images[newIndex].src)
-            }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer"
-            aria-label="Next image"
-          >
-            <ChevronRight className="w-10 h-10" />
-          </button>
-        </div>
-      )}
+
 
       {/* Campaigns Section */}
       <section id="campaigns" className="py-24 bg-white">
