@@ -13,20 +13,20 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
   const [textFading, setTextFading] = useState(false)
   const [showingButton, setShowingButton] = useState(false)
 
-  // Timeline: 100% loaded -> wait 2s -> fade bg -> wait 2s -> fade text -> wait 2s -> show button -> complete
+  // Timeline: 100% loaded -> wait 1s -> fade bg -> wait 1s -> fade text -> wait 1s -> show button -> complete
   useEffect(() => {
     if (progress >= 100) {
-      // 2 seconds after 100%, start fading background
-      const bgFadeTimer = setTimeout(() => setBackgroundFading(true), 2000)
+      // 1 second after 100%, start fading background
+      const bgFadeTimer = setTimeout(() => setBackgroundFading(true), 1000)
       
-      // 4 seconds after 100% (2s + 2s fade), start fading text
-      const textFadeTimer = setTimeout(() => setTextFading(true), 4000)
+      // 2 seconds after 100% (1s + 1s fade), start fading text
+      const textFadeTimer = setTimeout(() => setTextFading(true), 2000)
       
-      // 6 seconds after 100% (4s + 2s fade), show button and complete
+      // 3 seconds after 100% (2s + 1s fade), show button and complete
       const buttonTimer = setTimeout(() => {
         setShowingButton(true)
         onComplete()
-      }, 6000)
+      }, 3000)
 
       return () => {
         clearTimeout(bgFadeTimer)
@@ -40,14 +40,14 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] transition-opacity duration-[2000ms] ease-out pointer-events-none ${
+      className={`fixed inset-0 z-[100] transition-opacity duration-[1000ms] ease-out pointer-events-none ${
         textFading ? 'opacity-0' : 'opacity-100'
       }`}
       aria-hidden={textFading}
     >
-      {/* Black overlay - fades after 2s of being at 100% */}
+      {/* Black overlay - fades after 1s of being at 100% */}
       <div 
-        className={`absolute inset-0 bg-black transition-opacity duration-[2000ms] ease-out ${
+        className={`absolute inset-0 bg-black transition-opacity duration-[1000ms] ease-out ${
           backgroundFading ? 'opacity-0' : 'opacity-100'
         }`}
       />

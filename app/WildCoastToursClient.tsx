@@ -248,7 +248,7 @@ export default function WildCoastToursClient() {
   // Hero slideshow with random delays
   useEffect(() => {
     const scheduleNextSlide = () => {
-      // Base 5 seconds + random 0-3 seconds
+      // Base 5 seconds + random 0-3 seconds = 5-8 seconds total
       const delay = 5000 + Math.random() * 3000
       const timer = setTimeout(() => {
         setCurrentHeroImage((prev) => (prev + 1) % heroImages.length)
@@ -475,13 +475,11 @@ export default function WildCoastToursClient() {
           <div className="z-50">
             <Link href="/booking">
               <button
-                className={`group flex items-center gap-3 px-8 py-4 text-lg font-semibold text-white bg-transparent border-2 border-white/40 hover:border-[#F7931A] hover:text-[#F7931A] rounded-none transition-all duration-300 transform hover:scale-105 ${
+                className={`px-8 py-4 text-lg font-semibold text-white bg-transparent hover:text-[#F7931A] active:text-[#F7931A] transition-colors duration-300 ${
                   showPreloader ? 'opacity-0 pointer-events-none' : 'opacity-100'
                 }`}
               >
-                <BackpackIcon className="w-6 h-6 group-hover:animate-bounce" />
-                <span>Book Your Adventure</span>
-                <CompassIcon className="w-5 h-5 opacity-60" />
+                Book Your Adventure
               </button>
             </Link>
           </div>
