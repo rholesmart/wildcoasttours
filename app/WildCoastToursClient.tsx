@@ -457,13 +457,13 @@ export default function WildCoastToursClient() {
         </div>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
-          {/* Logo - stays visible always */}
+          {/* Logo - stays visible always with highest z-index */}
           <Image
             src="/images/wild-coast-logo.webp"
             alt="Wild Coast Tours"
             width={300}
             height={300}
-            className="w-[67.5%] md:w-1/4 h-auto mb-6 absolute top-20"
+            className="w-[67.5%] md:w-1/4 h-auto mb-6 absolute top-20 z-[102]"
             priority
           />
 
