@@ -762,57 +762,7 @@ export default function WildCoastToursClient() {
         </div>
       </section>
 
-      {/* Zoom Modal */}
-      {zoomedImage && (
-        <div
-          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
-          onClick={() => setZoomedImage(null)}
-        >
-          <button
-            onClick={() => setZoomedImage(null)}
-            className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer z-10"
-            aria-label="Close zoom"
-          >
-            <X className="w-8 h-8" />
-          </button>
-          <div className="relative w-full h-full max-w-7xl max-h-[90vh] m-4">
-            <Image
-              src={zoomedImage || "/placeholder.svg"}
-              alt="Zoomed view"
-              fill
-              className="object-contain"
-              sizes="100vw"
-              onClick={(e) => e.stopPropagation()}
-              priority={nov2025Index < 6}
-              loading={nov2025Index < 6 ? undefined : "lazy"}
-            />
-          </div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              const newIndex = (nov2025Index - 1 + november2025Images.length) % november2025Images.length
-              setNov2025Index(newIndex)
-              setZoomedImage(november2025Images[newIndex].src)
-            }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer"
-            aria-label="Previous image"
-          >
-            <ChevronLeft className="w-10 h-10" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              const newIndex = (nov2025Index + 1) % november2025Images.length
-              setNov2025Index(newIndex)
-              setZoomedImage(november2025Images[newIndex].src)
-            }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors cursor-pointer"
-            aria-label="Next image"
-          >
-            <ChevronRight className="w-10 h-10" />
-          </button>
-        </div>
-      )}
+
 
       {/* Campaigns Section */}
       <section id="campaigns" className="py-24 bg-white">
