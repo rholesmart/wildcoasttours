@@ -35,66 +35,168 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
     }
   }, [progress, onComplete])
 
+  // Lock scroll while preloader is showing
+  useEffect(() => {
+    if (progress < 100) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [progress])
+
   const taglineOpacity = progress / 100
 
   return (
     <>
-      {/* Black overlay - only the background fades */}
+      {/* Black overlay - fades out */}
       <div
-        className={`fixed inset-0 z-[100] bg-black transition-opacity duration-[1000ms] ease-out pointer-events-none ${
-          backgroundFading ? 'opacity-0' : 'opacity-100'
-        }`}
+        style={{
+          position: 'fixed',
+          top: '0',
+          left: '0',
+          right: '0',
+          bottom: '0',
+          zIndex: '100',
+          backgroundColor: 'black',
+          opacity: backgroundFading ? 0 : 1,
+          transition: 'opacity 1000ms ease-out',
+          pointerEvents: 'none'
+        }}
       />
 
-      {/* Logo - fixed on screen, never fades */}
-      <div className="fixed inset-0 z-[102] h-full flex flex-col items-center justify-center text-center text-white px-4 pointer-events-none">
-        {/* Logo - stays visible always */}
+      {/* Logo - fixed top center, never fades, always visible */}
+      <div
+        style={{
+          position: 'fixed',
+          top: '100px',
+          left: '0',
+          right: '0',
+          zIndex: '102',
+          textAlign: 'center',
+          pointerEvents: 'none',
+          width: '100%',
+          paddingLeft: '1rem',
+          paddingRight: '1rem'
+        }}
+      >
         <Image
           src="/images/wild-coast-logo.webp"
           alt="Wild Coast Tours"
           width={300}
           height={300}
-          className="w-[67.5%] md:w-1/4 h-auto mb-6"
+          style={{
+            width: '67.5%',
+            height: 'auto',
+            maxWidth: 'none',
+            margin: '0 auto',
+            display: 'block'
+          }}
+          className="md:w-1/4"
           priority
         />
       </div>
 
-      {/* Subtitle and Button - swap at same location */}
-      <div className="fixed inset-0 z-[102] h-full flex flex-col items-center justify-center text-center text-white px-4">
-        {/* Subtitle text - fades in with progress, then fades out */}
+      {/* Subtitle - fixed middle of screen, fades in with progress then out */}
+      <div
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '0',
+          right: '0',
+          zIndex: '102',
+          textAlign: 'center',
+          color: 'white',
+          pointerEvents: 'none',
+          width: '100%',
+          paddingLeft: '1rem',
+          paddingRight: '1rem',
+          transform: 'translateY(-50%)'
+        }}
+      >
         <p 
-          className={`text-lg md:text-xl max-w-md transition-opacity duration-[1000ms] ease-out pointer-events-none ${
-            subtitleFading ? 'opacity-0' : 'opacity-100'
-          }`}
-          style={{ 
+          style={{
+            fontSize: '1.125rem',
             opacity: subtitleFading ? 0 : taglineOpacity,
-            transitionDuration: subtitleFading ? '1000ms' : '300ms'
+            transition: subtitleFading ? 'opacity 1000ms ease-out' : 'opacity 300ms ease-out',
+            maxWidth: '448px',
+            margin: '0 auto'
           }}
+          className="md:text-xl"
         >
           Authentic Eco-Tourism Experiences<br />in Mpondoland
         </p>
+      </div>
 
-        {/* Button - fades in when subtitle fades out */}
-        {subtitleFading && (
-          <Link href="/booking" className="pointer-events-auto">
+      {/* Button - appears where subtitle was, after subtitle fades */}
+      {subtitleFading && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '0',
+            right: '0',
+            zIndex: '102',
+            textAlign: 'center',
+            width: '100%',
+            paddingLeft: '1rem',
+            paddingRight: '1rem',
+            transform: 'translateY(-50%)'
+          }}
+        >
+          <Link href="/booking" style={{ pointerEvents: 'auto' }}>
             <button
-              className="px-8 py-4 text-lg font-semibold text-white bg-transparent hover:text-[#F7931A] active:text-[#F7931A] transition-all duration-300 opacity-100 animate-fadeIn"
+              style={{
+                padding: '1rem 2rem',
+                fontSize: '1.125rem',
+                fontWeight: '600',
+                color: 'white',
+                backgroundColor: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'color 300ms ease-out',
+                animation: 'fadeIn 1000ms ease-out'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = '#F7931A'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
             >
               Book Your Adventure
             </button>
           </Link>
-        )}
+        </div>
+      )}
 
-        {/* Progress bar - only visible while loading */}
-        {progress < 100 && (
-          <div className="w-48 md:w-64 h-1.5 bg-white/20 rounded-full overflow-hidden mt-8 pointer-events-none">
-            <div
-              className="h-full rounded-full bg-[#F7931A] transition-[width] duration-100 ease-linear"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        )}
-      </div>
+      {/* Progress bar - fixed at 2/3 height */}
+      {progress < 100 && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '66.666%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: '102',
+            width: '12rem',
+            height: '0.375rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            borderRadius: '9999px',
+            overflow: 'hidden',
+            pointerEvents: 'none'
+          }}
+          className="md:w-64"
+        >
+          <div
+            style={{
+              height: '100%',
+              borderRadius: '9999px',
+              backgroundColor: '#F7931A',
+              width: `${progress}%`,
+              transition: 'width 100ms linear'
+            }}
+          />
+        </div>
+      )}
     </>
   )
 }
