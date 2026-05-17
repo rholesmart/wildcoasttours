@@ -71,7 +71,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
       <div
         style={{
           position: 'fixed',
-          top: '80px',
+          top: '15%',
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: '9999',
