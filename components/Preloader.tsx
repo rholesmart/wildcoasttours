@@ -10,76 +10,73 @@ interface PreloaderProps {
 }
 
 export default function Preloader({ onComplete, progress }: PreloaderProps) {
-  const [backgroundFading, setBackgroundFading] = useState(false)
-  const [subtitleFading, setSubtitleFading] = useState(false)
+  const [overlayFading, setOverlayFading] = useState(false)
+  const [preloaderDone, setPreloaderDone] = useState(false)
+  const [showButton, setShowButton] = useState(false)
 
-  // Timeline: 100% loaded -> wait 1s -> fade bg -> wait 1s -> fade subtitle -> complete
+  // Timeline: 100% loaded -> wait 1s -> fade overlay (1s transition)
+  //           -> wait 1s -> switch tagline to button -> complete
   useEffect(() => {
-    if (progress >= 100) {
-      // 1 second after 100%, start fading background
-      const bgFadeTimer = setTimeout(() => setBackgroundFading(true), 1000)
+    if (progress < 100) return
 
-      // 2 seconds after 100% (1s + 1s fade), start fading subtitle
-      const subtitleTimer = setTimeout(() => setSubtitleFading(true), 2000)
+    const t1 = setTimeout(() => setOverlayFading(true), 1000)  // start fading overlay
+    const t2 = setTimeout(() => setShowButton(true), 2000)     // swap tagline -> button
+    const t3 = setTimeout(() => {
+      setPreloaderDone(true)
+      onComplete()
+    }, 3000)                                                    // signal parent
 
-      // 3 seconds after 100%, complete preloader
-      const completeTimer = setTimeout(() => {
-        onComplete()
-      }, 3000)
-
-      return () => {
-        clearTimeout(bgFadeTimer)
-        clearTimeout(subtitleTimer)
-        clearTimeout(completeTimer)
-      }
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
     }
   }, [progress, onComplete])
 
-  // Lock scroll while preloader is showing
+  // Lock scroll while loading
   useEffect(() => {
-    if (progress < 100) {
-      document.documentElement.style.overflow = 'hidden';
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset'
-    }
+    const overflow = progress < 100 ? 'hidden' : 'unset'
+    document.documentElement.style.overflow = overflow
+    document.body.style.overflow = overflow
+
     return () => {
+      document.documentElement.style.overflow = 'unset'
       document.body.style.overflow = 'unset'
     }
   }, [progress])
+
+  // Once the full sequence is done, render nothing — parent can unmount safely
+  if (preloaderDone) return null
 
   const taglineOpacity = progress / 100
 
   return (
     <>
-      {/* Black overlay - fades out */}
+      {/* Black overlay — fades out after loading completes */}
       <div
         style={{
           position: 'fixed',
-          top: '0',
-          left: '0',
-          right: '0',
-          bottom: '0',
-          zIndex: '100',
+          inset: 0,
+          zIndex: 100,
           backgroundColor: 'black',
-          opacity: backgroundFading ? 0 : 1,
+          opacity: overlayFading ? 0 : 1,
           transition: 'opacity 1000ms ease-out',
-          pointerEvents: 'none'
+          pointerEvents: overlayFading ? 'none' : 'auto',
         }}
       />
 
-      {/* Logo Container - always visible, never affected by fades */}
+      {/* Logo — sits above overlay at all times, never fades */}
       <div
         style={{
           position: 'fixed',
           top: '80px',
           left: '50%',
           transform: 'translateX(-50%)',
-          zIndex: '9999',
+          zIndex: 9999,
           textAlign: 'center',
           pointerEvents: 'none',
           width: '50vw',
-          maxWidth: '300px'
+          maxWidth: '300px',
         }}
       >
         <Image
@@ -87,32 +84,28 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
           alt="Wild Coast Tours"
           width={300}
           height={300}
-          style={{
-            width: '100%',
-            height: 'auto',
-            display: 'block'
-          }}
+          style={{ width: '100%', height: 'auto', display: 'block' }}
           priority
         />
       </div>
 
-      {/* Text/Button Container - fades subtitle out, button in */}
+      {/* Text / CTA — transitions from tagline to button */}
       <div
         style={{
           position: 'fixed',
           top: '75%',
-          left: '0',
-          right: '0',
-          zIndex: '999999999999999',
+          left: 0,
+          right: 0,
+          zIndex: 9999,
           textAlign: 'center',
           color: 'white',
           width: '100%',
           paddingLeft: '1rem',
-          paddingRight: '1rem'
+          paddingRight: '1rem',
         }}
       >
-        {/* Subtitle - fades out */}
-        {!subtitleFading && (
+        {!showButton ? (
+          // Tagline fades in as progress increases, hidden once button takes over
           <p
             style={{
               fontSize: '1.125rem',
@@ -120,17 +113,17 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
               transition: 'opacity 300ms ease-out',
               maxWidth: '448px',
               margin: '0 auto',
-              pointerEvents: 'none'
+              pointerEvents: 'none',
             }}
             className="md:text-xl"
           >
-            Authentic Eco-Tourism Experiences<br />in Mpondoland
+            Authentic Eco-Tourism Experiences
+            <br />
+            in Mpondoland
           </p>
-        )}
-
-        {/* Button - fades in */}
-        {subtitleFading && (
-          <div style={{ pointerEvents: 'auto', animation: 'fadeIn 1000ms ease-out' }}>
+        ) : (
+          // CTA fades in when overlay finishes
+          <div style={{ animation: 'fadeIn 1000ms ease-out forwards' }}>
             <Link href="/booking">
               <button
                 style={{
@@ -141,10 +134,10 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
                   backgroundColor: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
-                  transition: 'color 300ms ease-out'
+                  transition: 'color 300ms ease-out',
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.color = '#F7931A'}
-                onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#F7931A')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'white')}
               >
                 Book Your Adventure
               </button>
@@ -153,7 +146,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
         )}
       </div>
 
-      {/* Progress bar - fixed at 2/3 height */}
+      {/* Progress bar — hidden once at 100% */}
       {progress < 100 && (
         <div
           style={{
@@ -161,13 +154,13 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
             top: '66.666%',
             left: '50%',
             transform: 'translateX(-50%)',
-            zIndex: '101',
+            zIndex: 101,
             width: '12rem',
             height: '0.375rem',
             backgroundColor: 'rgba(255, 255, 255, 0.2)',
             borderRadius: '9999px',
             overflow: 'hidden',
-            pointerEvents: 'none'
+            pointerEvents: 'none',
           }}
           className="md:w-64"
         >
@@ -177,7 +170,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
               borderRadius: '9999px',
               backgroundColor: '#F7931A',
               width: `${progress}%`,
-              transition: 'width 100ms linear'
+              transition: 'width 100ms linear',
             }}
           />
         </div>
