@@ -102,7 +102,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
           top: '75%',
           left: '0',
           right: '0',
-          zIndex: '9999',
+          zIndex: '999999999999999',
           textAlign: 'center',
           color: 'white',
           width: '100%',
