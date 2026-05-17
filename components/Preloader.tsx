@@ -99,7 +99,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
       <div
         style={{
           position: 'fixed',
-          top: '50%',
+          top: '350px',
           left: '0',
           right: '0',
           zIndex: '101',
@@ -107,8 +107,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
           color: 'white',
           width: '100%',
           paddingLeft: '1rem',
-          paddingRight: '1rem',
-          transform: 'translateY(-50%)'
+          paddingRight: '1rem'
         }}
       >
         {/* Subtitle - fades out */}
