@@ -67,14 +67,14 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
         }}
       />
 
-      {/* Logo - fixed top center, never fades, always visible */}
+      {/* Logo Container - always visible, never affected by fades */}
       <div
         style={{
           position: 'fixed',
           top: '80px',
           left: '50%',
           transform: 'translateX(-50%)',
-          zIndex: '999',
+          zIndex: '101',
           textAlign: 'center',
           pointerEvents: 'none',
           width: '50vw',
@@ -89,81 +89,69 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
           style={{
             width: '100%',
             height: 'auto',
-            display: 'block',
-            opacity: 1
+            display: 'block'
           }}
           priority
         />
       </div>
 
-      {/* Subtitle - fixed middle of screen, fades in with progress then out */}
+      {/* Text/Button Container - fades subtitle out, button in */}
       <div
         style={{
           position: 'fixed',
           top: '50%',
           left: '0',
           right: '0',
-          zIndex: '102',
+          zIndex: '101',
           textAlign: 'center',
           color: 'white',
-          pointerEvents: 'none',
           width: '100%',
           paddingLeft: '1rem',
           paddingRight: '1rem',
           transform: 'translateY(-50%)'
         }}
       >
-        <p 
-          style={{
-            fontSize: '1.125rem',
-            opacity: subtitleFading ? 0 : taglineOpacity,
-            transition: subtitleFading ? 'opacity 1000ms ease-out' : 'opacity 300ms ease-out',
-            maxWidth: '448px',
-            margin: '0 auto'
-          }}
-          className="md:text-xl"
-        >
-          Authentic Eco-Tourism Experiences<br />in Mpondoland
-        </p>
-      </div>
+        {/* Subtitle - fades out */}
+        {!subtitleFading && (
+          <p 
+            style={{
+              fontSize: '1.125rem',
+              opacity: taglineOpacity,
+              transition: 'opacity 300ms ease-out',
+              maxWidth: '448px',
+              margin: '0 auto',
+              pointerEvents: 'none'
+            }}
+            className="md:text-xl"
+          >
+            Authentic Eco-Tourism Experiences<br />in Mpondoland
+          </p>
+        )}
 
-      {/* Button - appears where subtitle was, after subtitle fades */}
-      {subtitleFading && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '50%',
-            left: '0',
-            right: '0',
-            zIndex: '102',
-            textAlign: 'center',
-            width: '100%',
-            paddingLeft: '1rem',
-            paddingRight: '1rem',
-            transform: 'translateY(-50%)'
-          }}
-        >
-          <Link href="/booking" style={{ pointerEvents: 'auto' }}>
-            <button
-              style={{
-                padding: '1rem 2rem',
-                fontSize: '1.125rem',
-                fontWeight: '600',
-                color: 'white',
-                backgroundColor: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'color 300ms ease-out',
-                animation: 'fadeIn 1000ms ease-out'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#F7931A'}
-              onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
-            >
-              Book Your Adventure
-            </button>
-          </Link>
-        </div>
-      )}
+        {/* Button - fades in */}
+        {subtitleFading && (
+          <div style={{ pointerEvents: 'auto', animation: 'fadeIn 1000ms ease-out' }}>
+            <Link href="/booking">
+              <button
+                style={{
+                  padding: '1rem 2rem',
+                  fontSize: '1.125rem',
+                  fontWeight: '600',
+                  color: 'white',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'color 300ms ease-out'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#F7931A'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
+              >
+                Book Your Adventure
+              </button>
+            </Link>
+          </div>
+        )}
+      </div>
 
       {/* Progress bar - fixed at 2/3 height */}
       {progress < 100 && (
@@ -173,7 +161,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
             top: '66.666%',
             left: '50%',
             transform: 'translateX(-50%)',
-            zIndex: '102',
+            zIndex: '101',
             width: '12rem',
             height: '0.375rem',
             backgroundColor: 'rgba(255, 255, 255, 0.2)',
