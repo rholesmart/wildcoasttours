@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 
 interface PreloaderProps {
   onComplete: () => void
@@ -44,8 +45,19 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
         }`}
       />
 
-      {/* Subtitle text only - fades in with progress, then fades out */}
-      <div className="fixed inset-0 z-[101] h-full flex items-center justify-center text-center text-white px-4 pointer-events-none">
+      {/* Logo and subtitle - fixed on screen, never fade */}
+      <div className="fixed inset-0 z-[102] h-full flex flex-col items-center justify-center text-center text-white px-4 pointer-events-none">
+        {/* Logo - stays visible always */}
+        <Image
+          src="/images/wild-coast-logo.webp"
+          alt="Wild Coast Tours"
+          width={300}
+          height={300}
+          className="w-[67.5%] md:w-1/4 h-auto mb-6"
+          priority
+        />
+
+        {/* Subtitle text - fades in with progress, then fades out */}
         <p 
           className={`text-lg md:text-xl max-w-md transition-opacity duration-[1000ms] ease-out ${
             subtitleFading ? 'opacity-0' : 'opacity-100'
@@ -60,7 +72,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
 
         {/* Progress bar - only visible while loading */}
         {progress < 100 && (
-          <div className="absolute top-1/2 w-48 md:w-64 h-1.5 bg-white/20 rounded-full overflow-hidden">
+          <div className="w-48 md:w-64 h-1.5 bg-white/20 rounded-full overflow-hidden mt-8">
             <div
               className="h-full rounded-full bg-[#F7931A] transition-[width] duration-100 ease-linear"
               style={{ width: `${progress}%` }}
