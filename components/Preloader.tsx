@@ -99,7 +99,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
       <div
         style={{
           position: 'fixed',
-          top: '66%',
+          top: '75%',
           left: '0',
           right: '0',
           zIndex: '9999',
