@@ -18,10 +18,10 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
     if (progress >= 100) {
       // 1 second after 100%, start fading background
       const bgFadeTimer = setTimeout(() => setBackgroundFading(true), 1000)
-      
+
       // 2 seconds after 100% (1s + 1s fade), start fading subtitle
       const subtitleTimer = setTimeout(() => setSubtitleFading(true), 2000)
-      
+
       // 3 seconds after 100%, complete preloader
       const completeTimer = setTimeout(() => {
         onComplete()
@@ -71,7 +71,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
       <div
         style={{
           position: 'fixed',
-          top: '15%',
+          top: '80px',
           left: '50%',
           transform: 'translateX(-50%)',
           zIndex: '9999',
@@ -99,7 +99,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
       <div
         style={{
           position: 'fixed',
-          top: '350px',
+          top: '25%',
           left: '0',
           right: '0',
           zIndex: '9999',
@@ -112,7 +112,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
       >
         {/* Subtitle - fades out */}
         {!subtitleFading && (
-          <p 
+          <p
             style={{
               fontSize: '1.125rem',
               opacity: taglineOpacity,
