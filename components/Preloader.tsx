@@ -71,15 +71,14 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
       <div
         style={{
           position: 'fixed',
-          top: '100px',
-          left: '0',
-          right: '0',
-          zIndex: '102',
+          top: '80px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: '999',
           textAlign: 'center',
           pointerEvents: 'none',
-          width: '100%',
-          paddingLeft: '1rem',
-          paddingRight: '1rem'
+          width: '50vw',
+          maxWidth: '300px'
         }}
       >
         <Image
@@ -88,13 +87,11 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
           width={300}
           height={300}
           style={{
-            width: '67.5%',
+            width: '100%',
             height: 'auto',
-            maxWidth: 'none',
-            margin: '0 auto',
-            display: 'block'
+            display: 'block',
+            opacity: 1
           }}
-          className="md:w-1/4"
           priority
         />
       </div>
