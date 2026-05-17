@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 interface PreloaderProps {
   onComplete: () => void
@@ -45,7 +46,7 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
         }`}
       />
 
-      {/* Logo and subtitle - fixed on screen, never fade */}
+      {/* Logo - fixed on screen, never fades */}
       <div className="fixed inset-0 z-[102] h-full flex flex-col items-center justify-center text-center text-white px-4 pointer-events-none">
         {/* Logo - stays visible always */}
         <Image
@@ -56,10 +57,13 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
           className="w-[67.5%] md:w-1/4 h-auto mb-6"
           priority
         />
+      </div>
 
+      {/* Subtitle and Button - swap at same location */}
+      <div className="fixed inset-0 z-[102] h-full flex flex-col items-center justify-center text-center text-white px-4">
         {/* Subtitle text - fades in with progress, then fades out */}
         <p 
-          className={`text-lg md:text-xl max-w-md transition-opacity duration-[1000ms] ease-out ${
+          className={`text-lg md:text-xl max-w-md transition-opacity duration-[1000ms] ease-out pointer-events-none ${
             subtitleFading ? 'opacity-0' : 'opacity-100'
           }`}
           style={{ 
@@ -70,9 +74,20 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
           Authentic Eco-Tourism Experiences<br />in Mpondoland
         </p>
 
+        {/* Button - fades in when subtitle fades out */}
+        {subtitleFading && (
+          <Link href="/booking" className="pointer-events-auto">
+            <button
+              className="px-8 py-4 text-lg font-semibold text-white bg-transparent hover:text-[#F7931A] active:text-[#F7931A] transition-all duration-300 opacity-100 animate-fadeIn"
+            >
+              Book Your Adventure
+            </button>
+          </Link>
+        )}
+
         {/* Progress bar - only visible while loading */}
         {progress < 100 && (
-          <div className="w-48 md:w-64 h-1.5 bg-white/20 rounded-full overflow-hidden mt-8">
+          <div className="w-48 md:w-64 h-1.5 bg-white/20 rounded-full overflow-hidden mt-8 pointer-events-none">
             <div
               className="h-full rounded-full bg-[#F7931A] transition-[width] duration-100 ease-linear"
               style={{ width: `${progress}%` }}

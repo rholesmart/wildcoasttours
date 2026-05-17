@@ -457,18 +457,6 @@ export default function WildCoastToursClient() {
         </div>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
-          {/* CTA Button - visible after preload */}
-          <div className={`z-50 transition-opacity duration-1000 ${
-            showPreloader ? 'opacity-0 pointer-events-none' : 'opacity-100'
-          }`}>
-            <Link href="/booking">
-              <button
-                className="px-8 py-4 text-lg font-semibold text-white bg-transparent hover:text-[#F7931A] active:text-[#F7931A] transition-colors duration-300"
-              >
-                Book Your Adventure
-              </button>
-            </Link>
-          </div>
           <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
             <DialogContent className="max-w-md bg-white border-0 shadow-2xl">
               <DialogHeader>
