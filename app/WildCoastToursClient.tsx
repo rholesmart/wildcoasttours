@@ -270,7 +270,7 @@ export default function WildCoastToursClient() {
     top: "80px",
     left: "50%",
     transform: "translateX(-50%)",
-    zIndex: 9999,
+    zIndex: 50,
     textAlign: "center",
     pointerEvents: "none",
     width: "50vw",
