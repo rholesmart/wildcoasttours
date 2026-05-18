@@ -9,11 +9,11 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Slider } from "@/components/ui/slider"
-import { Mail, Phone, ChevronLeft, ChevronRight } from "lucide-react"
+import { Mail, Phone, ChevronLeft, ChevronRight, X } from "lucide-react"
 import { sendBookingEmail } from "@/actions/send-email"
 import dynamic from "next/dynamic"
 import Preloader from "@/components/Preloader"
-import { HikerIcon } from "@/components/HikingIcons"
+import { CompassIcon, MountainIcon, HikerIcon, BackpackIcon } from "@/components/HikingIcons"
 
 const WildCoastMap = dynamic(() => import("@/components/WildCoastMap"), {
   ssr: false,
@@ -93,6 +93,10 @@ const timelineData = [
 export default function WildCoastToursClient() {
   const [showPreloader, setShowPreloader] = useState(true)
   const [preloaderProgress, setPreloaderProgress] = useState(0)
+  // taglineFading: true once progress hits 100% so tagline fades out BEFORE button fades in
+  const [taglineFading, setTaglineFading] = useState(false)
+  const [showButton, setShowButton] = useState(false)
+
   const [currentHeroImage, setCurrentHeroImage] = useState(0)
   const [currentTimelineIndex, setCurrentTimelineIndex] = useState(0)
   const [selectedTimelineItem, setSelectedTimelineItem] = useState<(typeof timelineData)[0] | null>(null)
@@ -142,6 +146,16 @@ export default function WildCoastToursClient() {
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
   }, [showPreloader])
+
+  // Sequential text transition:
+  // t+1s: tagline starts fading out (500ms)
+  // t+1.5s: button fades in
+  useEffect(() => {
+    if (preloaderProgress < 100) return
+    const t1 = setTimeout(() => setTaglineFading(true), 1000)
+    const t2 = setTimeout(() => setShowButton(true), 1500)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [preloaderProgress])
 
   const handlePreloaderComplete = () => {
     setShowPreloader(false)
@@ -248,33 +262,45 @@ export default function WildCoastToursClient() {
     }
   }
 
+  // ─── Shared logo + text styles ────────────────────────────────────────────
+  // During preloader: position fixed so it floats above the black overlay
+  // After preloader:  position absolute inside the hero so it scrolls away naturally
+  const logoWrapStyle: React.CSSProperties = {
+    position: showPreloader ? "fixed" : "absolute",
+    top: "80px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    zIndex: 9999,
+    textAlign: "center",
+    pointerEvents: "none",
+    width: "50vw",
+    maxWidth: "300px",
+  }
+
+  const textWrapStyle: React.CSSProperties = {
+    position: showPreloader ? "fixed" : "absolute",
+    top: "75%",
+    left: 0,
+    right: 0,
+    zIndex: 9999,
+    textAlign: "center",
+    color: "white",
+    paddingLeft: "1rem",
+    paddingRight: "1rem",
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   return (
     <>
-      {/* ── PRELOADER: black overlay + progress bar only ── */}
+      {/* Preloader — black overlay + progress bar only */}
       {showPreloader && (
         <Preloader onComplete={handlePreloaderComplete} progress={preloaderProgress} />
       )}
 
-      {/* ── PERSISTENT HERO OVERLAY ──────────────────────────────────────────
-          These sit at z-index 9999 (above the preloader overlay at z-100),
-          so they're visible during loading AND stay visible after the
-          preloader unmounts — because they live here, not inside Preloader.
-      ───────────────────────────────────────────────────────────────────── */}
-
-      {/* Logo — always visible */}
-      <div
-        style={{
-          position: "fixed",
-          top: "80px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 9999,
-          textAlign: "center",
-          pointerEvents: "none",
-          width: "50vw",
-          maxWidth: "300px",
-        }}
-      >
+      {/* ── LOGO ──
+          Fixed during preloader (floats above black overlay).
+          Absolute inside hero after preloader (scrolls away with the page). */}
+      <div style={logoWrapStyle}>
         <Image
           src="/images/wild-coast-logo.webp"
           alt="Wild Coast Tours"
@@ -285,68 +311,61 @@ export default function WildCoastToursClient() {
         />
       </div>
 
-      {/* Tagline (during load) → Book Your Adventure button (after load) */}
-      <div
-        style={{
-          position: "fixed",
-          top: "75%",
-          left: 0,
-          right: 0,
-          zIndex: 9999,
-          textAlign: "center",
-          color: "white",
-          paddingLeft: "1rem",
-          paddingRight: "1rem",
-        }}
-      >
-        {showPreloader ? (
-          /* Tagline fades in as progress increases */
-          <p
+      {/* ── TAGLINE → BUTTON ──
+          Same fixed/absolute swap as logo.
+          Tagline fades OUT first, then button fades IN — no overlap. */}
+      <div style={textWrapStyle}>
+        {/* Tagline: visible while loading, fades out once progress hits 100% */}
+        <p
+          style={{
+            fontSize: "1.125rem",
+            opacity: taglineFading ? 0 : preloaderProgress / 100,
+            transition: taglineFading ? "opacity 500ms ease-out" : "opacity 300ms ease-out",
+            maxWidth: "448px",
+            margin: "0 auto",
+            pointerEvents: "none",
+            position: "absolute",
+            left: 0,
+            right: 0,
+          }}
+          className="md:text-xl"
+        >
+          Authentic Eco-Tourism Experiences
+          <br />
+          in Mpondoland
+        </p>
+
+        {/* Button: fades in only after tagline has faded out */}
+        <div
+          style={{
+            opacity: showButton ? 1 : 0,
+            transition: "opacity 600ms ease-in",
+            pointerEvents: showButton ? "auto" : "none",
+          }}
+        >
+          <button
+            onClick={() => setIsBookingOpen(true)}
             style={{
+              padding: "1rem 2rem",
               fontSize: "1.125rem",
-              opacity: preloaderProgress / 100,
-              transition: "opacity 300ms ease-out",
-              maxWidth: "448px",
-              margin: "0 auto",
-              pointerEvents: "none",
+              fontWeight: "600",
+              color: "white",
+              backgroundColor: "transparent",
+              border: "none",
+              cursor: "pointer",
+              transition: "color 300ms ease-out",
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#F7931A")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
           >
-            Authentic Eco-Tourism Experiences
-            <br />
-            in Mpondoland
-          </p>
-        ) : (
-          /* Book button fades in once preloader is done */
-          <div
-            style={{
-              animation: "fadeIn 800ms ease-out forwards",
-            }}
-          >
-            <button
-              onClick={() => setIsBookingOpen(true)}
-              style={{
-                padding: "1rem 2rem",
-                fontSize: "1.125rem",
-                fontWeight: "600",
-                color: "white",
-                backgroundColor: "transparent",
-                border: "none",
-                cursor: "pointer",
-                transition: "color 300ms ease-out",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#F7931A")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
-            >
-              Book Your Adventure
-            </button>
-          </div>
-        )}
+            Book Your Adventure
+          </button>
+        </div>
       </div>
 
-      {/* ── MAIN PAGE ── */}
       <main className="min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu">
 
-        {/* Booking Dialog — opened by the persistent button above */}
+        {/* Booking Dialog */}
         <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
           <DialogContent className="max-w-md bg-white border-0 shadow-2xl">
             <DialogHeader>
@@ -756,30 +775,17 @@ export default function WildCoastToursClient() {
                 <p className="text-base font-bold font-ubuntu">Wild Coast Tours</p>
                 <p className="text-xs opacity-80">Authentic Eco-Tourism Experiences in Mpondoland</p>
                 <div className="mt-3">
-                  <span className="bg-[#1B5F8C] text-[#F4F4F4] px-3 py-1 rounded-full text-xs">Promoting Eco-Mpondo Tourism</span>
+                  <span className="bg-[#1B5F8C] text-[#F4F4F4] px-3 py-1 rounded-full text-xs">
+                    Promoting Eco-Mpondo Tourism
+                  </span>
                 </div>
               </div>
               <div className="flex gap-4">
-                {[
-                  { href: "mailto:sinegugu@wildcoasttours.co.za", label: "Email us", icon: <Mail className="w-5 h-5" /> },
-                  { href: "tel:+27724285109", label: "Call us", icon: <Phone className="w-5 h-5" /> },
-                  { href: "https://facebook.com/wildcoasttours", label: "Facebook", icon: <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg> },
-                  { href: "https://www.instagram.com/Wildcoasttours/", label: "Instagram", icon: <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12C24 5.373 18.627 0 12 0zm4.441 7.559c.614 0 1.114.5 1.114 1.114s-.5 1.114-1.114 1.114-1.114-.5-1.114-1.114.5-1.114 1.114-1.114zm-4.441 1.441c1.933 0 3.5 1.567 3.5 3.5s-1.567 3.5-3.5 3.5-3.5-1.567-3.5-3.5 1.567-3.5 3.5-3.5zm0-1.5c-2.761 0-5 2.239-5 5s2.239 5 5 5 5-2.239 5-5-2.239-5-5-5zm5.5 13h-11c-1.1 0-2-.9-2-2v-11c0-1.1.9-2 2-2h11c1.1 0 2 .9 2 2v11c0 1.1-.9 2-2 2z" /></svg> },
-                  { href: "https://www.tiktok.com/@wildcoasttours", label: "TikTok", icon: <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.1 1.82 2.89 2.89 0 0 1 2.31-4.64 2.88 2.88 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.6a4.76 4.76 0 0 1-.54-.05z" /></svg> },
-                ].map(({ href, label, icon }) => (
-                  <a
-                    key={label}
-                    href={href}
-                    target={href.startsWith("http") ? "_blank" : undefined}
-                    rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                    className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center transition-colors duration-300"
-                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = ACCENT_COLOR; e.currentTarget.style.color = "#1B5F8C" }}
-                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(244,244,244,0.2)"; e.currentTarget.style.color = "#F4F4F4" }}
-                    aria-label={label}
-                  >
-                    {icon}
-                  </a>
-                ))}
+                <a href="mailto:sinegugu@wildcoasttours.co.za" className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center transition-colors duration-300" onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = ACCENT_COLOR; e.currentTarget.style.color = "#1B5F8C" }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(244,244,244,0.2)"; e.currentTarget.style.color = "#F4F4F4" }} aria-label="Email us"><Mail className="w-5 h-5" /></a>
+                <a href="tel:+27724285109" className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center transition-colors duration-300" onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = ACCENT_COLOR; e.currentTarget.style.color = "#1B5F8C" }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(244,244,244,0.2)"; e.currentTarget.style.color = "#F4F4F4" }} aria-label="Call us"><Phone className="w-5 h-5" /></a>
+                <a href="https://facebook.com/wildcoasttours" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center transition-colors duration-300" onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = ACCENT_COLOR; e.currentTarget.style.color = "#1B5F8C" }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(244,244,244,0.2)"; e.currentTarget.style.color = "#F4F4F4" }} aria-label="Facebook"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg></a>
+                <a href="https://www.instagram.com/Wildcoasttours/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center transition-colors duration-300" onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = ACCENT_COLOR; e.currentTarget.style.color = "#1B5F8C" }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(244,244,244,0.2)"; e.currentTarget.style.color = "#F4F4F4" }} aria-label="Instagram"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12c0 6.627 5.373 12 12 12s12-5.373 12-12C24 5.373 18.627 0 12 0zm4.441 7.559c.614 0 1.114.5 1.114 1.114s-.5 1.114-1.114 1.114-1.114-.5-1.114-1.114.5-1.114 1.114-1.114zm-4.441 1.441c1.933 0 3.5 1.567 3.5 3.5s-1.567 3.5-3.5 3.5-3.5-1.567-3.5-3.5 1.567-3.5 3.5-3.5zm0-1.5c-2.761 0-5 2.239-5 5s2.239 5 5 5 5-2.239 5-5-2.239-5-5-5zm5.5 13h-11c-1.1 0-2-.9-2-2v-11c0-1.1.9-2 2-2h11c1.1 0 2 .9 2 2v11c0 1.1-.9 2-2 2z" /></svg></a>
+                <a href="https://www.tiktok.com/@wildcoasttours" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-[#F4F4F4]/20 flex items-center justify-center transition-colors duration-300" onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = ACCENT_COLOR; e.currentTarget.style.color = "#1B5F8C" }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "rgba(244,244,244,0.2)"; e.currentTarget.style.color = "#F4F4F4" }} aria-label="TikTok"><svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.1 1.82 2.89 2.89 0 0 1 2.31-4.64 2.88 2.88 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.6a4.76 4.76 0 0 1-.54-.05z" /></svg></a>
               </div>
             </div>
             <div className="text-center mt-12 pt-8 border-t border-[#F4F4F4]/20">
