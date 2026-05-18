@@ -465,9 +465,8 @@ export default function WildCoastToursClient() {
           {heroImages.map((image, index) => (
             <div
               key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                currentHeroImage === index ? "opacity-100" : "opacity-0"
-              }`}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${currentHeroImage === index ? "opacity-100" : "opacity-0"
+                }`}
             >
               <Image
                 src={image || "/placeholder.svg"}
@@ -616,11 +615,10 @@ export default function WildCoastToursClient() {
                         key={actualIdx}
                         ref={(el) => { thumbnailRefs.current[actualIdx] = el }}
                         onClick={() => setNov2025Index(actualIdx)}
-                        className={`flex-shrink-0 relative overflow-hidden transition-all duration-300 cursor-pointer ${
-                          isSelected
+                        className={`flex-shrink-0 relative overflow-hidden transition-all duration-300 cursor-pointer ${isSelected
                             ? "w-24 h-16 md:w-36 md:h-24 opacity-100 z-10"
                             : "w-14 h-10 md:w-20 md:h-14 opacity-50 hover:opacity-80 grayscale hover:grayscale-0"
-                        }`}
+                          }`}
                         aria-label={`View image ${actualIdx + 1}`}
                       >
                         <Image
@@ -723,11 +721,10 @@ export default function WildCoastToursClient() {
                   <button
                     key={index}
                     onMouseEnter={() => !isDragging && selectTimelineEvent(index)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-full text-xs md:text-sm transition-all duration-300 transform hover:scale-110 cursor-pointer ${
-                      currentTimelineEvent.year === item.year
+                    className={`flex-shrink-0 px-4 py-2 rounded-full text-xs md:text-sm transition-all duration-300 transform hover:scale-110 cursor-pointer ${currentTimelineEvent.year === item.year
                         ? "font-bold shadow-lg scale-110"
                         : "bg-[#F4F4F4]/20 text-[#F4F4F4] hover:bg-[#F4F4F4]/40 hover:shadow-md"
-                    }`}
+                      }`}
                     style={currentTimelineEvent.year === item.year ? { backgroundColor: ACCENT_COLOR, color: "#1B5F8C" } : {}}
                     role="tab"
                     aria-selected={currentTimelineEvent.year === item.year}
