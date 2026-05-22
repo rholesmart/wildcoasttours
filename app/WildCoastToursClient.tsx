@@ -93,8 +93,9 @@ const timelineData = [
 export default function WildCoastToursClient() {
   const [showPreloader, setShowPreloader] = useState(true)
   const [preloaderProgress, setPreloaderProgress] = useState(0)
-  // taglineFading: true once progress hits 100% so tagline fades out BEFORE button fades in
+  // taglineFading: true the moment progress hits 100% so tagline fades out BEFORE curtain lifts
   const [taglineFading, setTaglineFading] = useState(false)
+  // showButton: true 2 seconds after the curtain has fully gone
   const [showButton, setShowButton] = useState(false)
 
   const [currentHeroImage, setCurrentHeroImage] = useState(0)
@@ -131,7 +132,7 @@ export default function WildCoastToursClient() {
 
   const currentTimelineEvent = timelineData[currentTimelineIndex]
 
-  // Preloader progress animation
+  // ── Preloader progress animation ─────────────────────────────────────────
   useEffect(() => {
     if (!showPreloader) return
     let raf: number
@@ -147,21 +148,22 @@ export default function WildCoastToursClient() {
     return () => cancelAnimationFrame(raf)
   }, [showPreloader])
 
-  // Sequential text transition:
-  // t+1s: tagline starts fading out (500ms)
-  // t+1.5s: button fades in
+  // ── Tagline fades out the instant progress hits 100% ─────────────────────
+  // The Preloader then waits 600ms (so text is gone) before lifting the curtain.
   useEffect(() => {
     if (preloaderProgress < 100) return
-    const t1 = setTimeout(() => setTaglineFading(true), 1000)
-    const t2 = setTimeout(() => setShowButton(true), 1500)
-    return () => { clearTimeout(t1); clearTimeout(t2) }
+    setTaglineFading(true)
   }, [preloaderProgress])
 
+  // ── Preloader complete handler ────────────────────────────────────────────
+  // Called by Preloader after curtain fully fades (~1700ms after progress=100).
+  // We then wait 2 more seconds before revealing the CTA button.
   const handlePreloaderComplete = () => {
     setShowPreloader(false)
+    setTimeout(() => setShowButton(true), 2000)
   }
 
-  // Hero slideshow
+  // ── Hero slideshow ────────────────────────────────────────────────────────
   useEffect(() => {
     const scheduleNextSlide = () => {
       const delay = 5000 + Math.random() * 3000
@@ -187,7 +189,7 @@ export default function WildCoastToursClient() {
     setHeroTouchStart(null)
   }
 
-  // Fade-in on scroll
+  // ── Fade-in on scroll ─────────────────────────────────────────────────────
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add("animate-fade-in") }),
@@ -197,7 +199,7 @@ export default function WildCoastToursClient() {
     return () => observer.disconnect()
   }, [])
 
-  // Interactive profile image
+  // ── Interactive profile image ─────────────────────────────────────────────
   useEffect(() => {
     if (isProfileHovered) {
       const hoverInterval = setInterval(() => {
@@ -262,21 +264,22 @@ export default function WildCoastToursClient() {
     }
   }
 
-  // ─── Shared logo + text styles ────────────────────────────────────────────
-  // During preloader: position fixed so it floats above the black overlay
-  // After preloader:  position absolute inside the hero so it scrolls away naturally
+  // ─── Logo styles ──────────────────────────────────────────────────────────
+  // Fixed during preloader so it floats above the black overlay (z:102).
+  // Absolute inside the hero after preloader so it scrolls away naturally.
   const logoWrapStyle: React.CSSProperties = {
     position: showPreloader ? "fixed" : "absolute",
     top: "80px",
     left: "50%",
     transform: "translateX(-50%)",
-    zIndex: 50,
+    zIndex: 102,            // above the black overlay (z:100) — was 50 (bug: hidden behind overlay)
     textAlign: "center",
     pointerEvents: "none",
     width: "50vw",
     maxWidth: "300px",
   }
 
+  // ─── Tagline / button container styles ───────────────────────────────────
   const textWrapStyle: React.CSSProperties = {
     position: showPreloader ? "fixed" : "absolute",
     top: "66.666%",
@@ -288,7 +291,6 @@ export default function WildCoastToursClient() {
     paddingLeft: "1rem",
     paddingRight: "1rem",
   }
-  // ─────────────────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -298,8 +300,8 @@ export default function WildCoastToursClient() {
       )}
 
       {/* ── LOGO ──
-          Fixed during preloader (floats above black overlay).
-          Absolute inside hero after preloader (scrolls away with the page). */}
+          z:102 keeps it visible above the black overlay during loading.
+          Switches to absolute (inside hero) once preloader is done. */}
       <div style={logoWrapStyle}>
         <Image
           src="/images/wild-coast-logo.webp"
@@ -312,15 +314,18 @@ export default function WildCoastToursClient() {
       </div>
 
       {/* ── TAGLINE → BUTTON ──
-          Same fixed/absolute swap as logo.
-          Tagline fades OUT first, then button fades IN — no overlap. */}
+          Tagline fades IN as progress fills (opacity = progress/100).
+          At progress=100: taglineFading=true → fades OUT in 500ms.
+          After curtain is fully gone + 2s delay: button fades IN. */}
       <div style={textWrapStyle}>
-        {/* Tagline: visible while loading, fades out once progress hits 100% */}
+        {/* Tagline */}
         <p
           style={{
             fontSize: "1.125rem",
             opacity: taglineFading ? 0 : preloaderProgress / 100,
-            transition: taglineFading ? "opacity 500ms ease-out" : "opacity 300ms ease-out",
+            transition: taglineFading
+              ? "opacity 500ms ease-out"   // fast fade-out before curtain lifts
+              : "opacity 300ms ease-out",  // gradual fade-in during loading
             maxWidth: "448px",
             margin: "0 auto",
             pointerEvents: "none",
@@ -330,12 +335,12 @@ export default function WildCoastToursClient() {
           }}
           className="md:text-xl"
         >
-          Authentic Eco-Tourism Experiences
+          Authentic Mpondo Tours
           <br />
           in Mpondoland
         </p>
 
-        {/* Button: fades in only after tagline has faded out */}
+        {/* CTA Button — appears 2s after curtain fully fades */}
         <div
           style={{
             opacity: showButton ? 1 : 0,
@@ -465,9 +470,8 @@ export default function WildCoastToursClient() {
           {heroImages.map((image, index) => (
             <div
               key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                currentHeroImage === index ? "opacity-100" : "opacity-0"
-              }`}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${currentHeroImage === index ? "opacity-100" : "opacity-0"
+                }`}
             >
               <Image
                 src={image || "/placeholder.svg"}
@@ -616,11 +620,10 @@ export default function WildCoastToursClient() {
                         key={actualIdx}
                         ref={(el) => { thumbnailRefs.current[actualIdx] = el }}
                         onClick={() => setNov2025Index(actualIdx)}
-                        className={`flex-shrink-0 relative overflow-hidden transition-all duration-300 cursor-pointer ${
-                          isSelected
+                        className={`flex-shrink-0 relative overflow-hidden transition-all duration-300 cursor-pointer ${isSelected
                             ? "w-24 h-16 md:w-36 md:h-24 opacity-100 z-10"
                             : "w-14 h-10 md:w-20 md:h-14 opacity-50 hover:opacity-80 grayscale hover:grayscale-0"
-                        }`}
+                          }`}
                         aria-label={`View image ${actualIdx + 1}`}
                       >
                         <Image
@@ -723,11 +726,10 @@ export default function WildCoastToursClient() {
                   <button
                     key={index}
                     onMouseEnter={() => !isDragging && selectTimelineEvent(index)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-full text-xs md:text-sm transition-all duration-300 transform hover:scale-110 cursor-pointer ${
-                      currentTimelineEvent.year === item.year
+                    className={`flex-shrink-0 px-4 py-2 rounded-full text-xs md:text-sm transition-all duration-300 transform hover:scale-110 cursor-pointer ${currentTimelineEvent.year === item.year
                         ? "font-bold shadow-lg scale-110"
                         : "bg-[#F4F4F4]/20 text-[#F4F4F4] hover:bg-[#F4F4F4]/40 hover:shadow-md"
-                    }`}
+                      }`}
                     style={currentTimelineEvent.year === item.year ? { backgroundColor: ACCENT_COLOR, color: "#1B5F8C" } : {}}
                     role="tab"
                     aria-selected={currentTimelineEvent.year === item.year}
