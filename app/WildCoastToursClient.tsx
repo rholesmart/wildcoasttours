@@ -398,20 +398,19 @@ export default function WildCoastToursClient() {
           ───────────────────────────────────────────────────────────────── */}
       {!showPreloader && (
         <>
-          {/* Logo — top centre of hero, shrinks after preload */}
+          {/* Logo — absolutely positioned, shrinks to sun after preload */}
           <div
             style={{
-              position: "relative",
+              position: "absolute",
+              top: logoShrunken ? "15%" : "5vh",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 9999,
               textAlign: "center",
               pointerEvents: "none",
-              zIndex: 9999,
-              width: logoShrunken ? "25vw" : "min(300px, 50vw)",
+              width: logoShrunken ? "12.5vw" : "min(300px, 50vw)",
               height: "auto",
-              marginLeft: "auto",
-              marginRight: "auto",
-              marginTop: logoShrunken ? "2.5rem" : "1rem",
-              marginBottom: logoShrunken ? "1rem" : "2rem",
-              transition: "width 1000ms ease-out, margin 1000ms ease-out",
+              transition: "width 1000ms ease-out, top 1000ms ease-out",
             }}
           >
             <Image
