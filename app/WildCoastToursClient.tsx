@@ -3,17 +3,16 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Slider } from "@/components/ui/slider"
-import { Mail, Phone, ChevronLeft, ChevronRight, X } from "lucide-react"
+import { Mail, Phone, ChevronLeft, ChevronRight } from "lucide-react"
 import { sendBookingEmail } from "@/actions/send-email"
 import dynamic from "next/dynamic"
 import Preloader from "@/components/Preloader"
-import { CompassIcon, MountainIcon, HikerIcon, BackpackIcon } from "@/components/HikingIcons"
+import { HikerIcon } from "@/components/HikingIcons"
 
 const WildCoastMap = dynamic(() => import("@/components/WildCoastMap"), {
   ssr: false,
@@ -93,7 +92,6 @@ const timelineData = [
 export default function WildCoastToursClient() {
   const [showPreloader, setShowPreloader] = useState(true)
   const [preloaderProgress, setPreloaderProgress] = useState(0)
-  // taglineFading: true once progress hits 100% so tagline fades out BEFORE button fades in
   const [taglineFading, setTaglineFading] = useState(false)
   const [showButton, setShowButton] = useState(false)
 
@@ -103,6 +101,7 @@ export default function WildCoastToursClient() {
   const profileImageRef = useRef<HTMLDivElement>(null)
   const [isProfileHovered, setIsProfileHovered] = useState(false)
   const [isBookingOpen, setIsBookingOpen] = useState(false)
+  const [logoShrunken, setLogoShrunken] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -131,7 +130,22 @@ export default function WildCoastToursClient() {
 
   const currentTimelineEvent = timelineData[currentTimelineIndex]
 
-  // Preloader progress animation
+  // ── Lock / unlock body scroll during preloader ──────────────────────────
+  useEffect(() => {
+    if (showPreloader) {
+      document.body.style.overflow = "hidden"
+      document.body.style.height = "100%"
+    } else {
+      document.body.style.overflow = ""
+      document.body.style.height = ""
+    }
+    return () => {
+      document.body.style.overflow = ""
+      document.body.style.height = ""
+    }
+  }, [showPreloader])
+
+  // Preloader progress animation (2 s)
   useEffect(() => {
     if (!showPreloader) return
     let raf: number
@@ -147,9 +161,7 @@ export default function WildCoastToursClient() {
     return () => cancelAnimationFrame(raf)
   }, [showPreloader])
 
-  // Sequential text transition:
-  // t+1s: tagline starts fading out (500ms)
-  // t+1.5s: button fades in
+  // Once at 100 %: tagline fades out → button fades in
   useEffect(() => {
     if (preloaderProgress < 100) return
     const t1 = setTimeout(() => setTaglineFading(true), 1000)
@@ -159,6 +171,8 @@ export default function WildCoastToursClient() {
 
   const handlePreloaderComplete = () => {
     setShowPreloader(false)
+    // Shrink logo after a brief delay to position it like the sun
+    setTimeout(() => setLogoShrunken(true), 500)
   }
 
   // Hero slideshow
@@ -262,122 +276,200 @@ export default function WildCoastToursClient() {
     }
   }
 
-  // ─── Shared logo + text styles ────────────────────────────────────────────
-  // During preloader: position fixed so it floats above the black overlay
-  // After preloader:  position absolute inside the hero so it scrolls away naturally
-  const logoWrapStyle: React.CSSProperties = {
-    position: showPreloader ? "fixed" : "absolute",
-    top: "80px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    zIndex: 50,
-    textAlign: "center",
-    pointerEvents: "none",
-    width: "50vw",
-    maxWidth: "300px",
-  }
-
-  const textWrapStyle: React.CSSProperties = {
-    position: showPreloader ? "fixed" : "absolute",
-    top: "66.666%",
-    left: 0,
-    right: 0,
-    zIndex: 9999,
-    textAlign: "center",
-    color: "white",
-    paddingLeft: "1rem",
-    paddingRight: "1rem",
-  }
-  // ─────────────────────────────────────────────────────────────────────────
-
   return (
     <>
-      {/* Preloader — black overlay + progress bar only */}
+      {/* ─────────────────────────────────────────────────────────────────────
+          PRELOADER PHASE
+          • Preloader renders the black overlay (pass progress so it can fade
+            out the overlay at 100 % — keep whatever Preloader already does).
+          • We render logo + tagline + button + progress bar on top, in a
+            single fixed full-screen flex container so everything sits dead
+            centre. Progress bar is pinned to the very bottom edge.
+          ───────────────────────────────────────────────────────────────── */}
       {showPreloader && (
-        <Preloader onComplete={handlePreloaderComplete} progress={preloaderProgress} />
+        <>
+          {/* Black overlay from Preloader — NOTE: if your Preloader component
+              also renders its own progress bar, remove it there so it doesn't
+              duplicate the one below. */}
+          <Preloader onComplete={handlePreloaderComplete} progress={preloaderProgress} />
+
+          {/* Centred overlay: logo + tagline + book button */}
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9999,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              pointerEvents: "none",
+            }}
+          >
+            {/* ── Centre group ── */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "1.5rem",
+                width: "min(320px, 70vw)",
+              }}
+            >
+              {/* Logo — visible immediately, no fade-in delay */}
+              <Image
+                src="/images/wild-coast-logo.webp"
+                alt="Wild Coast Tours"
+                width={300}
+                height={300}
+                style={{ width: "100%", height: "auto", display: "block" }}
+                priority
+              />
+
+              {/* Tagline: fades in with progress, fades out at 100 % */}
+              <p
+                style={{
+                  fontSize: "clamp(0.9rem, 2.5vw, 1.125rem)",
+                  color: "white",
+                  textAlign: "center",
+                  lineHeight: 1.5,
+                  opacity: taglineFading ? 0 : preloaderProgress / 100,
+                  transition: taglineFading ? "opacity 500ms ease-out" : "opacity 300ms ease-out",
+                  pointerEvents: "none",
+                  margin: 0,
+                }}
+              >
+                Authentic Eco-Tourism Experiences
+                <br />
+                in Mpondoland
+              </p>
+
+              {/* Book button: fades in after tagline fades out */}
+              <button
+                onClick={() => setIsBookingOpen(true)}
+                style={{
+                  opacity: showButton ? 1 : 0,
+                  transition: "opacity 600ms ease-in",
+                  pointerEvents: showButton ? "auto" : "none",
+                  padding: "0.75rem 2rem",
+                  fontSize: "clamp(0.95rem, 2.5vw, 1.125rem)",
+                  fontWeight: 600,
+                  color: "white",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#F7931A")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
+              >
+                Book Your Adventure
+              </button>
+            </div>
+
+            {/* ── Progress bar — pinned to the very bottom ── */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: "3px",
+                backgroundColor: "rgba(255,255,255,0.15)",
+              }}
+            >
+              <div
+                style={{
+                  height: "100%",
+                  width: `${preloaderProgress}%`,
+                  backgroundColor: ACCENT_COLOR,
+                  transition: "width 80ms linear",
+                  boxShadow: `0 0 8px ${ACCENT_COLOR}`,
+                }}
+              />
+            </div>
+          </div>
+        </>
       )}
 
-      {/* ── LOGO ──
-          Fixed during preloader (floats above black overlay).
-          Absolute inside hero after preloader (scrolls away with the page). */}
-      <div style={logoWrapStyle}>
-        <Image
-          src="/images/wild-coast-logo.webp"
-          alt="Wild Coast Tours"
-          width={300}
-          height={300}
-          style={{ width: "100%", height: "auto", display: "block" }}
-          priority
-        />
-      </div>
-
-      {/* ── TAGLINE → BUTTON ──
-          Same fixed/absolute swap as logo.
-          Tagline fades OUT first, then button fades IN — no overlap. */}
-      <div style={textWrapStyle}>
-        {/* Tagline: visible while loading, fades out once progress hits 100% */}
-        <p
-          style={{
-            fontSize: "1.125rem",
-            opacity: taglineFading ? 0 : preloaderProgress / 100,
-            transition: taglineFading ? "opacity 500ms ease-out" : "opacity 300ms ease-out",
-            maxWidth: "448px",
-            margin: "0 auto",
-            pointerEvents: "none",
-            position: "absolute",
-            left: 0,
-            right: 0,
-          }}
-          className="md:text-xl"
-        >
-          Authentic Eco-Tourism Experiences
-          <br />
-          in Mpondoland
-        </p>
-
-        {/* Button: fades in only after tagline has faded out */}
-        <div
-          style={{
-            opacity: showButton ? 1 : 0,
-            transition: "opacity 600ms ease-in",
-            pointerEvents: showButton ? "auto" : "none",
-          }}
-        >
-          <button
-            onClick={() => setIsBookingOpen(true)}
+      {/* ─────────────────────────────────────────────────────────────────────
+          POST-PRELOADER PHASE
+          Once showPreloader is false, elements switch from fixed to absolute
+          inside the hero section and scroll away naturally with the page.
+          ───────────────────────────────────────────────────────────────── */}
+      {!showPreloader && (
+        <>
+          {/* Logo — absolutely positioned, shrinks to sun after preload */}
+          <div
             style={{
-              padding: "1rem 2rem",
-              fontSize: "1.125rem",
-              fontWeight: "600",
-              color: "white",
-              backgroundColor: "transparent",
-              border: "none",
-              cursor: "pointer",
-              transition: "color 300ms ease-out",
+              position: "absolute",
+              top: logoShrunken ? "15%" : "5vh",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 9999,
+              textAlign: "center",
+              pointerEvents: "none",
+              width: logoShrunken ? "12.5vw" : "min(300px, 50vw)",
+              height: "auto",
+              transition: "width 1000ms ease-out, top 1000ms ease-out",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#F7931A")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
           >
-            Book Your Adventure
-          </button>
-        </div>
-      </div>
+            <Image
+              src="/images/wild-coast-logo.webp"
+              alt="Wild Coast Tours"
+              width={300}
+              height={300}
+              style={{ width: "100%", height: "auto", display: "block" }}
+              priority
+            />
+          </div>
+
+          {/* Book button — centre of hero */}
+          <div
+            style={{
+              position: "absolute",
+              top: "75%",
+              left: 0,
+              right: 0,
+              zIndex: 9999,
+              textAlign: "center",
+            }}
+          >
+            <button
+              onClick={() => setIsBookingOpen(true)}
+              style={{
+                padding: "1rem 2rem",
+                fontSize: "clamp(0.95rem, 2.5vw, 1.125rem)",
+                fontWeight: 600,
+                color: "white",
+                backgroundColor: "transparent",
+                border: "none",
+                cursor: "pointer",
+                transition: "color 300ms ease-out",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#F7931A")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
+            >
+              Book Your Adventure
+            </button>
+          </div>
+        </>
+      )}
 
       <main className="min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu">
 
         {/* Booking Dialog */}
         <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-          <DialogContent className="max-w-md bg-white border-0 shadow-2xl">
+          <DialogContent className="max-w-md w-[95vw] sm:w-full bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-[#1B5F8C] text-center">Book Your Adventure</DialogTitle>
+              <DialogTitle className="text-xl sm:text-2xl font-bold text-[#1B5F8C] text-center">Book Your Adventure</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 mt-4">
               <Input
                 placeholder="Your Name"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                className="border-[#1B5F8C] focus:ring-[#F7931A]"
+                className="border-[#1B5F8C] focus:ring-[#F7931A] text-base sm:text-sm"
                 aria-label="Your name"
               />
               <Input
@@ -386,7 +478,7 @@ export default function WildCoastToursClient() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                className="border-[#1B5F8C] focus:ring-[#F7931A]"
+                className="border-[#1B5F8C] focus:ring-[#F7931A] text-base sm:text-sm"
                 aria-label="Your email address"
               />
               <div>
@@ -555,24 +647,17 @@ export default function WildCoastToursClient() {
           </div>
         </section>
 
-        {/* Gallery Section */}
+        {/* Gallery Section — static, borderless, full-screen background */}
         <section id="november-2025" className="relative min-h-screen bg-black">
-          <div className="absolute inset-0 overflow-hidden">
-            <div
-              className="absolute inset-0 scale-110 transition-transform duration-1000"
-              style={{
-                transform: `scale(1.1) translateY(${typeof window !== "undefined" ? window.scrollY * 0.1 : 0}px)`,
-              }}
-            >
-              <Image
-                src={november2025Images[nov2025Index].src || "/placeholder.svg"}
-                alt={november2025Images[nov2025Index].alt}
-                fill
-                className="object-cover transition-all duration-700 ease-out"
-                sizes="100vw"
-                loading="lazy"
-              />
-            </div>
+          <div className="absolute inset-0">
+            <Image
+              src={november2025Images[nov2025Index].src || "/placeholder.svg"}
+              alt={november2025Images[nov2025Index].alt}
+              fill
+              className="object-cover transition-all duration-700 ease-out"
+              sizes="100vw"
+              loading="lazy"
+            />
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
           </div>
