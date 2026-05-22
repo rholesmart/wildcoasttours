@@ -101,6 +101,7 @@ export default function WildCoastToursClient() {
   const profileImageRef = useRef<HTMLDivElement>(null)
   const [isProfileHovered, setIsProfileHovered] = useState(false)
   const [isBookingOpen, setIsBookingOpen] = useState(false)
+  const [logoShrunken, setLogoShrunken] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -168,7 +169,11 @@ export default function WildCoastToursClient() {
     return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [preloaderProgress])
 
-  const handlePreloaderComplete = () => setShowPreloader(false)
+  const handlePreloaderComplete = () => {
+    setShowPreloader(false)
+    // Shrink logo after a brief delay to position it like the sun
+    setTimeout(() => setLogoShrunken(true), 500)
+  }
 
   // Hero slideshow
   useEffect(() => {
@@ -393,17 +398,20 @@ export default function WildCoastToursClient() {
           ───────────────────────────────────────────────────────────────── */}
       {!showPreloader && (
         <>
-          {/* Logo — top centre of hero */}
+          {/* Logo — top centre of hero, shrinks after preload */}
           <div
             style={{
-              position: "absolute",
-              top: "5vh",
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 9999,
+              position: "relative",
               textAlign: "center",
               pointerEvents: "none",
-              width: "min(300px, 50vw)",
+              zIndex: 9999,
+              width: logoShrunken ? "25vw" : "min(300px, 50vw)",
+              height: "auto",
+              marginLeft: "auto",
+              marginRight: "auto",
+              marginTop: logoShrunken ? "2.5rem" : "1rem",
+              marginBottom: logoShrunken ? "1rem" : "2rem",
+              transition: "width 1000ms ease-out, margin 1000ms ease-out",
             }}
           >
             <Image
@@ -452,17 +460,17 @@ export default function WildCoastToursClient() {
 
         {/* Booking Dialog */}
         <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-          <DialogContent className="max-w-md bg-white border-0 shadow-2xl">
+          <DialogContent className="max-w-md w-[95vw] sm:w-full bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-[#1B5F8C] text-center">Book Your Adventure</DialogTitle>
+              <DialogTitle className="text-xl sm:text-2xl font-bold text-[#1B5F8C] text-center">Book Your Adventure</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 mt-4">
               <Input
                 placeholder="Your Name"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                className="border-[#1B5F8C] focus:ring-[#F7931A]"
+                className="border-[#1B5F8C] focus:ring-[#F7931A] text-base sm:text-sm"
                 aria-label="Your name"
               />
               <Input
@@ -471,7 +479,7 @@ export default function WildCoastToursClient() {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
-                className="border-[#1B5F8C] focus:ring-[#F7931A]"
+                className="border-[#1B5F8C] focus:ring-[#F7931A] text-base sm:text-sm"
                 aria-label="Your email address"
               />
               <div>
