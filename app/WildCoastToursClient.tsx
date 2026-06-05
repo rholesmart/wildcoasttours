@@ -276,8 +276,9 @@ export default function WildCoastToursClient() {
   return (
     <>
       {/* ─────────────────────────────────────────────────────────────────────
-          LOGO — ALWAYS VISIBLE, never re-renders or blinks
-          Fixed during preloader, transitions to absolute after.
+          LOGO & TEXT CONTAINER — ALWAYS VISIBLE, never re-renders or blinks
+          Flex column with logo on top and text below. Fixed during preloader,
+          transitions to absolute after.
           ───────────────────────────────────────────────────────────────── */}
       <div
         style={{
@@ -285,22 +286,70 @@ export default function WildCoastToursClient() {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          marginTop: "-8rem",
           zIndex: 9999,
-          textAlign: "center",
-          pointerEvents: "none",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "1rem",
           width: "min(320px, 70vw)",
-          height: "auto",
+          maxWidth: "600px",
+          pointerEvents: "none",
         }}
       >
-        <Image
-          src="/images/wild-coast-logo.webp"
-          alt="Wild Coast Tours"
-          width={300}
-          height={300}
-          style={{ width: "100%", height: "auto", display: "block" }}
-          priority
-        />
+        {/* Logo — top row */}
+        <div style={{ width: "100%", textAlign: "center" }}>
+          <Image
+            src="/images/wild-coast-logo.webp"
+            alt="Wild Coast Tours"
+            width={300}
+            height={300}
+            style={{ width: "100%", height: "auto", display: "block" }}
+            priority
+          />
+        </div>
+
+        {/* Text — bottom row */}
+        <div style={{ width: "100%", textAlign: "center", pointerEvents: "none" }}>
+          {/* Tagline: fades in with progress, fades out at 100 % */}
+          <p
+            style={{
+              fontSize: "clamp(0.9rem, 2.5vw, 1.125rem)",
+              color: "white",
+              textAlign: "center",
+              lineHeight: 1.5,
+              opacity: taglineFading ? 0 : preloaderProgress / 100,
+              transition: taglineFading ? "opacity 500ms ease-out" : "opacity 300ms ease-out",
+              margin: 0,
+              marginBottom: "0.5rem",
+            }}
+          >
+            Authentic Eco-Tourism Experiences
+            <br />
+            in Mpondoland
+          </p>
+
+          {/* Book button: fades in after tagline fades out */}
+          <button
+            onClick={() => setIsBookingOpen(true)}
+            style={{
+              opacity: showButton ? 1 : 0,
+              transition: "opacity 600ms ease-in",
+              pointerEvents: showButton ? "auto" : "none",
+              padding: "0.75rem 2rem",
+              fontSize: "clamp(0.95rem, 2.5vw, 1.125rem)",
+              fontWeight: 600,
+              color: "white",
+              backgroundColor: "transparent",
+              border: "none",
+              cursor: "pointer",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#F7931A")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
+          >
+            Book Your Adventure
+          </button>
+        </div>
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────────
@@ -318,92 +367,30 @@ export default function WildCoastToursClient() {
               duplicate the one below. */}
           <Preloader onComplete={handlePreloaderComplete} progress={preloaderProgress} />
 
-          {/* Centred overlay: tagline + book button (logo is now outside) */}
+          {/* Progress bar — pinned to the very bottom */}
           <div
             style={{
               position: "fixed",
-              inset: 0,
+              bottom: "2rem",
+              left: "50%",
+              transform: "translateX(-50%)",
               zIndex: 9998,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
+              width: "12rem",
+              height: "0.375rem",
+              backgroundColor: "rgba(255,255,255,0.2)",
+              borderRadius: "9999px",
+              overflow: "hidden",
               pointerEvents: "none",
-              paddingBottom: "4rem",
             }}
           >
-            {/* ── Centre group ── */}
             <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "1.5rem",
-                width: "min(320px, 70vw)",
-                marginTop: "10rem",
+                height: "100%",
+                width: `${preloaderProgress}%`,
+                backgroundColor: ACCENT_COLOR,
+                transition: "width 80ms linear",
               }}
-            >
-              {/* Tagline: fades in with progress, fades out at 100 % */}
-              <p
-                style={{
-                  fontSize: "clamp(0.9rem, 2.5vw, 1.125rem)",
-                  color: "white",
-                  textAlign: "center",
-                  lineHeight: 1.5,
-                  opacity: taglineFading ? 0 : preloaderProgress / 100,
-                  transition: taglineFading ? "opacity 500ms ease-out" : "opacity 300ms ease-out",
-                  pointerEvents: "none",
-                  margin: 0,
-                }}
-              >
-                Authentic Eco-Tourism Experiences
-                <br />
-                in Mpondoland
-              </p>
-
-              {/* Book button: fades in after tagline fades out */}
-              <button
-                onClick={() => setIsBookingOpen(true)}
-                style={{
-                  opacity: showButton ? 1 : 0,
-                  transition: "opacity 600ms ease-in",
-                  pointerEvents: showButton ? "auto" : "none",
-                  padding: "0.75rem 2rem",
-                  fontSize: "clamp(0.95rem, 2.5vw, 1.125rem)",
-                  fontWeight: 600,
-                  color: "white",
-                  backgroundColor: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#F7931A")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
-              >
-                Book Your Adventure
-              </button>
-            </div>
-
-            {/* ── Progress bar — pinned to the very bottom ── */}
-            <div
-              style={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: "3px",
-                backgroundColor: "rgba(255,255,255,0.15)",
-              }}
-            >
-              <div
-                style={{
-                  height: "100%",
-                  width: `${preloaderProgress}%`,
-                  backgroundColor: ACCENT_COLOR,
-                  transition: "width 80ms linear",
-                  boxShadow: `0 0 8px ${ACCENT_COLOR}`,
-                }}
-              />
-            </div>
+            />
           </div>
         </>
       )}
