@@ -278,7 +278,7 @@ export default function WildCoastToursClient() {
           LOGO & TEXT CONTAINER — ALWAYS VISIBLE, never re-renders or blinks
           Flex column with logo on top and text below. Fixed during preloader,
           transitions to absolute after.
-          ───────────────────────────────────────────────────────────────── */}
+          ──────────────���────────────────────────────────────────────────── */}
       <div
         style={{
           position: showPreloader ? "fixed" : "absolute",
@@ -290,13 +290,10 @@ export default function WildCoastToursClient() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: "0.75rem",
-          width: "90vw",
-          maxWidth: "450px",
-          maxHeight: "90vh",
-          overflow: "auto",
+          gap: "1.5rem",
+          width: "min(90vw, 400px)",
           pointerEvents: "none",
-          padding: "1rem",
+          padding: "2rem",
         }}
       >
         {/* Logo — top row */}
@@ -364,13 +361,15 @@ export default function WildCoastToursClient() {
           ───────────────────────────────────────────────────────────────── */}
       {showPreloader && (
         <>
-          {/* Black overlay during preload */}
+          {/* Black overlay during preload — fades out when complete */}
           <div
             style={{
               position: "fixed",
               inset: 0,
               zIndex: 9998,
               backgroundColor: "black",
+              opacity: preloaderProgress >= 100 ? 0 : 1,
+              transition: "opacity 1000ms ease-out",
               pointerEvents: "none",
             }}
           />
