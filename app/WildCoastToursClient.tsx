@@ -278,7 +278,7 @@ export default function WildCoastToursClient() {
           LOGO & TEXT CONTAINER — ALWAYS VISIBLE, never re-renders or blinks
           Flex column with logo on top and text below. Fixed during preloader,
           transitions to absolute after.
-          ──────────────���────────────────────────────────────────────────── */}
+          ──────────────�����────────────────────────────────────────────────── */}
       <div
         style={{
           position: showPreloader ? "fixed" : "absolute",
@@ -297,7 +297,7 @@ export default function WildCoastToursClient() {
         }}
       >
         {/* Logo — top row */}
-        <div style={{ width: "100%", textAlign: "center" }}>
+        <div style={{ width: "clamp(120px, 35vw, 280px)", textAlign: "center" }}>
           <Image
             src="/images/wild-coast-logo.webp"
             alt="Wild Coast Tours"
@@ -308,47 +308,49 @@ export default function WildCoastToursClient() {
           />
         </div>
 
-        {/* Text — bottom row */}
-        <div style={{ width: "100%", textAlign: "center", pointerEvents: "none" }}>
-          {/* Tagline: fades in with progress, fades out at 100 % */}
-          <p
-            style={{
-              fontSize: "clamp(0.9rem, 2.5vw, 1.125rem)",
-              color: "white",
-              textAlign: "center",
-              lineHeight: 1.5,
-              opacity: taglineFading ? 0 : preloaderProgress / 100,
-              transition: taglineFading ? "opacity 500ms ease-out" : "opacity 300ms ease-out",
-              margin: 0,
-              marginBottom: "0.5rem",
-            }}
-          >
-            Authentic Eco-Tourism Experiences
-            <br />
-            in Mpondoland
-          </p>
+        {/* Text — bottom row, only show during preloader */}
+        {showPreloader && (
+          <div style={{ width: "100%", textAlign: "center", pointerEvents: "none" }}>
+            {/* Tagline: fades in with progress, fades out at 100 % */}
+            <p
+              style={{
+                fontSize: "clamp(0.9rem, 2.5vw, 1.125rem)",
+                color: "white",
+                textAlign: "center",
+                lineHeight: 1.5,
+                opacity: taglineFading ? 0 : preloaderProgress / 100,
+                transition: taglineFading ? "opacity 500ms ease-out" : "opacity 300ms ease-out",
+                margin: 0,
+                marginBottom: "0.5rem",
+              }}
+            >
+              Authentic Eco-Tourism Experiences
+              <br />
+              in Mpondoland
+            </p>
 
-          {/* Book button: fades in after tagline fades out */}
-          <button
-            onClick={() => setIsBookingOpen(true)}
-            style={{
-              opacity: showButton ? 1 : 0,
-              transition: "opacity 600ms ease-in",
-              pointerEvents: showButton ? "auto" : "none",
-              padding: "0.75rem 2rem",
-              fontSize: "clamp(0.95rem, 2.5vw, 1.125rem)",
-              fontWeight: 600,
-              color: "white",
-              backgroundColor: "transparent",
-              border: "none",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#F7931A")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
-          >
-            Book Your Adventure
-          </button>
-        </div>
+            {/* Book button: fades in after tagline fades out */}
+            <button
+              onClick={() => setIsBookingOpen(true)}
+              style={{
+                opacity: showButton ? 1 : 0,
+                transition: "opacity 600ms ease-in",
+                pointerEvents: showButton ? "auto" : "none",
+                padding: "0.75rem 2rem",
+                fontSize: "clamp(0.95rem, 2.5vw, 1.125rem)",
+                fontWeight: 600,
+                color: "white",
+                backgroundColor: "transparent",
+                border: "none",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#F7931A")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
+            >
+              Book Your Adventure
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ─────────────────────────────────────────────────────────────────────
@@ -414,7 +416,7 @@ export default function WildCoastToursClient() {
 
         {/* Booking Dialog */}
         <Dialog open={isBookingOpen} onOpenChange={setIsBookingOpen}>
-          <DialogContent className="max-w-md w-[95vw] sm:w-full bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-md w-[95vw] sm:w-full bg-white border-0 shadow-2xl max-h-[90vh] overflow-y-auto z-[10000]">
             <DialogHeader>
               <DialogTitle className="text-xl sm:text-2xl font-bold text-[#1B5F8C] text-center">Book Your Adventure</DialogTitle>
             </DialogHeader>
