@@ -401,39 +401,7 @@ export default function WildCoastToursClient() {
           inside the hero section and scroll away naturally with the page.
           Logo is now always visible above, so only button is here.
           ───────────────────────────────────────────────────────────────── */}
-      {!showPreloader && (
-        <>
-          {/* Book button — centre of hero */}
-          <div
-            style={{
-              position: "absolute",
-              top: "75%",
-              left: 0,
-              right: 0,
-              zIndex: 9999,
-              textAlign: "center",
-            }}
-          >
-            <button
-              onClick={() => setIsBookingOpen(true)}
-              style={{
-                padding: "1rem 2rem",
-                fontSize: "clamp(0.95rem, 2.5vw, 1.125rem)",
-                fontWeight: 600,
-                color: "white",
-                backgroundColor: "transparent",
-                border: "none",
-                cursor: "pointer",
-                transition: "color 300ms ease-out",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "#F7931A")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "white")}
-            >
-              Book Your Adventure
-            </button>
-          </div>
-        </>
-      )}
+
 
       <main className="min-h-screen bg-[#F4F4F4] text-[#1B5F8C] font-ubuntu">
 
