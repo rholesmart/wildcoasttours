@@ -11,7 +11,6 @@ import { Slider } from "@/components/ui/slider"
 import { Mail, Phone, ChevronLeft, ChevronRight } from "lucide-react"
 import { sendBookingEmail } from "@/actions/send-email"
 import dynamic from "next/dynamic"
-import Preloader from "@/components/Preloader"
 import { HikerIcon } from "@/components/HikingIcons"
 
 const WildCoastMap = dynamic(() => import("@/components/WildCoastMap"), {
@@ -291,10 +290,13 @@ export default function WildCoastToursClient() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: "1rem",
-          width: "min(320px, 70vw)",
-          maxWidth: "600px",
+          gap: "0.75rem",
+          width: "90vw",
+          maxWidth: "450px",
+          maxHeight: "90vh",
+          overflow: "auto",
           pointerEvents: "none",
+          padding: "1rem",
         }}
       >
         {/* Logo — top row */}
@@ -362,10 +364,16 @@ export default function WildCoastToursClient() {
           ───────────────────────────────────────────────────────────────── */}
       {showPreloader && (
         <>
-          {/* Black overlay from Preloader — NOTE: if your Preloader component
-              also renders its own progress bar, remove it there so it doesn't
-              duplicate the one below. */}
-          <Preloader onComplete={handlePreloaderComplete} progress={preloaderProgress} />
+          {/* Black overlay during preload */}
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 9998,
+              backgroundColor: "black",
+              pointerEvents: "none",
+            }}
+          />
 
           {/* Progress bar — pinned to the very bottom */}
           <div
