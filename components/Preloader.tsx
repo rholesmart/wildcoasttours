@@ -23,16 +23,20 @@ export default function Preloader({ onComplete, progress }: PreloaderProps) {
     }
   }, [progress, onComplete])
 
-  // Lock scroll while loading
+  // Lock scroll while preloader is active (until fully complete)
   useEffect(() => {
-    const overflow = progress < 100 ? 'hidden' : 'unset'
-    document.documentElement.style.overflow = overflow
-    document.body.style.overflow = overflow
+    // Lock immediately
+    document.documentElement.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
+    // Also scroll to top
+    window.scrollTo(0, 0)
+    
     return () => {
+      // Unlock when component unmounts (preloader done)
       document.documentElement.style.overflow = 'unset'
       document.body.style.overflow = 'unset'
     }
-  }, [progress])
+  }, [])
 
   return (
     <>

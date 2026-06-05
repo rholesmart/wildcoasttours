@@ -101,7 +101,6 @@ export default function WildCoastToursClient() {
   const profileImageRef = useRef<HTMLDivElement>(null)
   const [isProfileHovered, setIsProfileHovered] = useState(false)
   const [isBookingOpen, setIsBookingOpen] = useState(false)
-  const [logoShrunken, setLogoShrunken] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -171,8 +170,6 @@ export default function WildCoastToursClient() {
 
   const handlePreloaderComplete = () => {
     setShowPreloader(false)
-    // Shrink logo after a brief delay to position it like the sun
-    setTimeout(() => setLogoShrunken(true), 500)
   }
 
   // Hero slideshow
@@ -304,6 +301,7 @@ export default function WildCoastToursClient() {
               alignItems: "center",
               justifyContent: "center",
               pointerEvents: "none",
+              paddingBottom: "4rem",
             }}
           >
             {/* ── Centre group ── */}
@@ -398,19 +396,19 @@ export default function WildCoastToursClient() {
           ───────────────────────────────────────────────────────────────── */}
       {!showPreloader && (
         <>
-          {/* Logo — absolutely positioned, shrinks to sun after preload */}
+          {/* Logo — same position as preloader, no shrinking */}
           <div
             style={{
               position: "absolute",
-              top: logoShrunken ? "15%" : "5vh",
+              top: "50%",
               left: "50%",
-              transform: "translateX(-50%)",
+              transform: "translate(-50%, -50%)",
+              marginTop: "-8rem",
               zIndex: 9999,
               textAlign: "center",
               pointerEvents: "none",
-              width: logoShrunken ? "12.5vw" : "min(300px, 50vw)",
+              width: "min(320px, 70vw)",
               height: "auto",
-              transition: "width 1000ms ease-out, top 1000ms ease-out",
             }}
           >
             <Image
