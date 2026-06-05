@@ -276,10 +276,38 @@ export default function WildCoastToursClient() {
   return (
     <>
       {/* ─────────────────────────────────────────────────────────────────────
+          LOGO — ALWAYS VISIBLE, never re-renders or blinks
+          Fixed during preloader, transitions to absolute after.
+          ───────────────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          position: showPreloader ? "fixed" : "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          marginTop: "-8rem",
+          zIndex: 9999,
+          textAlign: "center",
+          pointerEvents: "none",
+          width: "min(320px, 70vw)",
+          height: "auto",
+        }}
+      >
+        <Image
+          src="/images/wild-coast-logo.webp"
+          alt="Wild Coast Tours"
+          width={300}
+          height={300}
+          style={{ width: "100%", height: "auto", display: "block" }}
+          priority
+        />
+      </div>
+
+      {/* ─────────────────────────────────────────────────────────────────────
           PRELOADER PHASE
           • Preloader renders the black overlay (pass progress so it can fade
             out the overlay at 100 % — keep whatever Preloader already does).
-          • We render logo + tagline + button + progress bar on top, in a
+          • We render tagline + button + progress bar on top, in a
             single fixed full-screen flex container so everything sits dead
             centre. Progress bar is pinned to the very bottom edge.
           ───────────────────────────────────────────────────────────────── */}
@@ -290,12 +318,12 @@ export default function WildCoastToursClient() {
               duplicate the one below. */}
           <Preloader onComplete={handlePreloaderComplete} progress={preloaderProgress} />
 
-          {/* Centred overlay: logo + tagline + book button */}
+          {/* Centred overlay: tagline + book button (logo is now outside) */}
           <div
             style={{
               position: "fixed",
               inset: 0,
-              zIndex: 9999,
+              zIndex: 9998,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -312,18 +340,9 @@ export default function WildCoastToursClient() {
                 alignItems: "center",
                 gap: "1.5rem",
                 width: "min(320px, 70vw)",
+                marginTop: "10rem",
               }}
             >
-              {/* Logo — visible immediately, no fade-in delay */}
-              <Image
-                src="/images/wild-coast-logo.webp"
-                alt="Wild Coast Tours"
-                width={300}
-                height={300}
-                style={{ width: "100%", height: "auto", display: "block" }}
-                priority
-              />
-
               {/* Tagline: fades in with progress, fades out at 100 % */}
               <p
                 style={{
@@ -393,34 +412,10 @@ export default function WildCoastToursClient() {
           POST-PRELOADER PHASE
           Once showPreloader is false, elements switch from fixed to absolute
           inside the hero section and scroll away naturally with the page.
+          Logo is now always visible above, so only button is here.
           ───────────────────────────────────────────────────────────────── */}
       {!showPreloader && (
         <>
-          {/* Logo — same position as preloader, no shrinking */}
-          <div
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              marginTop: "-8rem",
-              zIndex: 9999,
-              textAlign: "center",
-              pointerEvents: "none",
-              width: "min(320px, 70vw)",
-              height: "auto",
-            }}
-          >
-            <Image
-              src="/images/wild-coast-logo.webp"
-              alt="Wild Coast Tours"
-              width={300}
-              height={300}
-              style={{ width: "100%", height: "auto", display: "block" }}
-              priority
-            />
-          </div>
-
           {/* Book button — centre of hero */}
           <div
             style={{
